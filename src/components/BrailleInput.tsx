@@ -47,14 +47,14 @@ const BrailleInput: React.FC = () => {
     <div className="braille-input-container">
       {/* 左右の指のボタン */}
       <div className="finger-group">
-        {/* <FingerButton id="leftIndex" isPressed={fingerStates.leftIndex} />
+        <FingerButton id="leftIndex" isPressed={fingerStates.leftIndex} />
         <FingerButton id="leftMiddle" isPressed={fingerStates.leftMiddle} />
-        <FingerButton id="leftRing" isPressed={fingerStates.leftRing} /> */}
+        <FingerButton id="leftRing" isPressed={fingerStates.leftRing} />
       </div>
       <div className="finger-group">
-        {/* <FingerButton id="rightIndex" isPressed={fingerStates.rightIndex} />
+        <FingerButton id="rightIndex" isPressed={fingerStates.rightIndex} />
         <FingerButton id="rightMiddle" isPressed={fingerStates.rightMiddle} />
-        <FingerButton id="rightRing" isPressed={fingerStates.rightRing} /> */}
+        <FingerButton id="rightRing" isPressed={fingerStates.rightRing} />
       </div>
     </div>
   );

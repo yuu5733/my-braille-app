@@ -1,0 +1,29 @@
+.braille-input-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.finger-group {
+  display: flex;
+  gap: 1rem;
+  margin: 0 1rem;
+}
+
+.braille-input-container .finger-group {
+  margin-top: 3rem;
+}
+
+/* 中央のグループを上にずらす */
+.braille-input-container .finger-group button:nth-child(2) {
+  transform: translateY(-2rem);
+  /* Y軸方向に上にずらす */
+}
+
+/* ボタンのスタイル（任意） */
+.finger-button {
+  padding: 1rem 2rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f0f0f0;
+}

@@ -1,7 +1,7 @@
 import type { BrailleMapping } from './types';
 
 export const brailleCodes = {
-  youon_fu: [4],
+  youon_fu: [4, 6],
   su_fu: [3, 4, 5, 6],
 };
 
