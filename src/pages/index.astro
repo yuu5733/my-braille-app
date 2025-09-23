@@ -1,11 +1,25 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from "../layouts/Layout.astro";
+import BrailleInput from "../components/BrailleInput.tsx";
+import ResultDisplay from "../components/ResultDisplay.tsx";
+import "../styles/global.css";
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="指点字練習アプリ">
+  <main>
+    <h1>指点字練習アプリ</h1>
+    <BrailleInput client:only="react" />
+    <ResultDisplay client:only="react" />
+  </main>
 </Layout>
+
+<style>
+  main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 2rem;
+  }
+</style>
