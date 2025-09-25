@@ -16,12 +16,19 @@ const BrailleInput: FC = () => {
   //   leftIndex: false, leftMiddle: false, leftRing: false,
   //   rightIndex: false, rightMiddle: false, rightRing: false
   // });
-  // const [lastCode, setLastCode] = useState<BrailleCode | null>(null);
+
+  // 初期値として、空の Set オブジェクト（String型）を設定。String型の配列にするより便利
+  // 重複を許容しないのと、要素の存在チェック (.has()) や削除 (.delete()) が簡単にできるため
   const [pressedKeys, setPressedKeys] = useState(new Set<string>());
+
+  // 数符などのために、最後に入力された点字コードを保存する
+  // const [lastCode, setLastCode] = useState<BrailleCode | null>(null);
 
  useEffect(() => {
   const handleKeyDown = (event: KeyboardEvent) => {
+    // 指点字として設定しているキーが押されたとき
     if (keyToDotMap[event.key]) {
+      // 新しいSetインスタンスを作成してStateを更新。配列の時に[...prev]として新しい配列を作成するのと同様
       setPressedKeys(prev => new Set(prev).add(event.key));
     }
   };
@@ -40,6 +47,7 @@ const BrailleInput: FC = () => {
   document.addEventListener('keyup', handleKeyUp);
 
   return () => {
+    // クリーンアップ関数でイベントリスナーを削除（アンマウント時）
     document.removeEventListener('keydown', handleKeyDown);
     document.removeEventListener('keyup', handleKeyUp);
   };
