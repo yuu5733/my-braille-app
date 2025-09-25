@@ -3,7 +3,12 @@ import type { FC } from 'react';
 import FingerButton from './FingerButton';
 import { brailleMappings, brailleCodes } from '../data/brailleMappings';
 import type { FingerStates, BrailleCode } from '../data/types';
+import { getBrailleCharacter } from '../utils/brailleConverter';
 import '../styles/brailleInput.css';
+
+interface BrailleInputProps {
+  onCharacterConfirm: (char: string) => void;
+}
 
 // インデックスシグネチャ（キーが文字列型で、その値が数値型であるオブジェクト）
 const keyToDotMap: { [key: string]: number } = {
@@ -11,7 +16,7 @@ const keyToDotMap: { [key: string]: number } = {
   'j': 4, 'k': 5, 'l': 6
 };
 
-const BrailleInput: FC = () => {
+const BrailleInput: FC<BrailleInputProps> = ({ onCharacterConfirm }) => {
   // const [fingerStates, setFingerStates] = useState<FingerStates>({
   //   leftIndex: false, leftMiddle: false, leftRing: false,
   //   rightIndex: false, rightMiddle: false, rightRing: false
@@ -27,7 +32,7 @@ const BrailleInput: FC = () => {
  useEffect(() => {
   const handleKeyDown = (event: KeyboardEvent) => {
     // 指点字として設定しているキーが押されたとき
-    if (keyToDotMap[event.key]) {
+    if (keyToDotMap[event.key] && !pressedKeys.has(event.key)) {
       // 新しいSetインスタンスを作成してStateを更新。配列の時に[...prev]として新しい配列を作成するのと同様
       setPressedKeys(prev => new Set(prev).add(event.key));
     }
@@ -51,7 +56,22 @@ const BrailleInput: FC = () => {
     document.removeEventListener('keydown', handleKeyDown);
     document.removeEventListener('keyup', handleKeyUp);
   };
-}, []);
+}, [pressedKeys]); // pressedKeysが変わるたびに再登録される
+
+  // pressedKeys の変更を監視して文字を判定
+  useEffect(() => {
+    // 押されているキーがなくなった場合（空のSet）は何も表示しない
+    if (pressedKeys.size === 0) {
+      onCharacterConfirm('');
+      return;
+    }
+    
+    // ユーティリティ関数を呼び出して文字を判定
+    const character = getBrailleCharacter(pressedKeys);
+    if (character) {
+      onCharacterConfirm(character);
+    }
+  }, [pressedKeys, onCharacterConfirm]);
 
   return (
     <div className="braille-input-container">

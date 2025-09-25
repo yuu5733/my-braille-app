@@ -1,5 +1,7 @@
 ---
+import { useState } from "react";
 import Layout from "../layouts/Layout.astro";
+import BrailleApp from "../components/BrailleApp.tsx";
 import BrailleInput from "../components/BrailleInput.tsx";
 import ResultDisplay from "../components/ResultDisplay.tsx";
 import "../styles/global.css";
@@ -7,9 +9,7 @@ import "../styles/global.css";
 
 <Layout title="指点字練習アプリ">
   <main>
-    <h1>指点字練習アプリ</h1>
-    <BrailleInput client:only="react" />
-    <ResultDisplay client:only="react" />
+    <BrailleApp client:only="react" />
   </main>
 </Layout>
 
