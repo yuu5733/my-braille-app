@@ -68,8 +68,10 @@ const BrailleInput: FC<BrailleInputProps> = ({ onCharacterConfirm }) => {
     
     // ユーティリティ関数を呼び出して文字を判定
     const character = getBrailleCharacter(pressedKeys);
-    if (character) {
+    if (character !== null) {
       onCharacterConfirm(character);
+    } else {
+      onCharacterConfirm('');
     }
   }, [pressedKeys, onCharacterConfirm]);
 
