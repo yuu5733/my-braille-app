@@ -1,5 +1,6 @@
 import { hiraganaTable } from './table';
 import { hexToDots } from '../utils/hexToDots';
+import { hexToBraille } from '../utils/hexToBraille';
 import type { BrailleMapping } from './types';
 
 export const brailleCodes = {
@@ -19,11 +20,21 @@ export const brailleCodes = {
 //   { character: '1', combo: [brailleCodes.su_fu, [1]] },
 // ];
 
+// hiraganaTableをもとにbrailleMappingsを生成（現在は清音のみ）
 export const brailleMappings: BrailleMapping[] = Object.entries(hiraganaTable).map(
   ([character, hexCode]) => {
     return {
-      character: character,
-      dots: hexToDots(hexCode),
+      character: character, // ひらがな
+      dots: hexToDots(hexCode), // 点の配列
+      braille: hexToBraille(hexCode), // Unicode点字文字
     };
   }
 );
+
+// brailleMappingsから逆引きのマッピングを作成
+export const brailleToCharacterMap: { [key: string]: string } = {};
+brailleMappings.forEach(mapping => {
+  if (mapping.braille) {
+    brailleToCharacterMap[mapping.braille] = mapping.character;
+  }
+});

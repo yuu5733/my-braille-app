@@ -13,4 +13,5 @@ export type BrailleMapping = {
   character: string;
   dots?: BrailleCode;
   combo?: [BrailleCode, BrailleCode];
+  braille?: string;
 };
