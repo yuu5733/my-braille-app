@@ -32,14 +32,19 @@ const BrailleInput: FC<BrailleInputProps> = ({ onCharacterConfirm }) => {
  useEffect(() => {
   const handleKeyDown = (event: KeyboardEvent) => {
     // 指点字として設定しているキーが押されたとき
+    // 同じキーを繰り返し押す場合に何度も登録されないように、すでに押されているキーは無視
     if (keyToDotMap[event.key] && !pressedKeys.has(event.key)) {
       // 新しいSetインスタンスを作成してStateを更新。配列の時に[...prev]として新しい配列を作成するのと同様
       setPressedKeys(prev => new Set(prev).add(event.key));
     }
   };
 
+  // キーボードのキーが離された瞬間に実行されるイベントハンドラー
   const handleKeyUp = (event: KeyboardEvent) => {
+    // 押されたキーが、指点字のキーマップ（f, d, s, j, k, l）の中に存在する場合
+    // （アルファベットに対応する数字があるかどうか）
     if (keyToDotMap[event.key]) {
+      // StateのSetから離されたキーを削除（数字ではなく、キーボードの文字で管理）
       setPressedKeys(prev => {
         const newSet = new Set(prev);
         newSet.delete(event.key);
@@ -71,18 +76,20 @@ const BrailleInput: FC<BrailleInputProps> = ({ onCharacterConfirm }) => {
     if (character !== null) {
       onCharacterConfirm(character);
     } else {
+      // 点字データ内に見つからない文字の時も、表示文字をクリア
       onCharacterConfirm('');
     }
   }, [pressedKeys, onCharacterConfirm]);
 
   return (
     <div className="braille-input-container">
-      {/* 左右の指のボタン */}
+      {/* 左の指のボタン */}
       <div className="finger-group">
         <FingerButton id="leftRing" isPressed={pressedKeys.has('s')} dot={3} />
         <FingerButton id="leftMiddle" isPressed={pressedKeys.has('d')} dot={2} />
         <FingerButton id="leftIndex" isPressed={pressedKeys.has('f')} dot={1} />
       </div>
+      {/* 右の指のボタン */}
       <div className="finger-group">
         <FingerButton id="rightIndex" isPressed={pressedKeys.has('j')} dot={4} />
         <FingerButton id="rightMiddle" isPressed={pressedKeys.has('k')} dot={5} />
