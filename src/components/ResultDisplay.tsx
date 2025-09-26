@@ -13,7 +13,7 @@ const ResultDisplay: FC<ResultDisplayProps> = ({ text, brailleText, dots }) => {
     <div className="result-display">
       <div>
         {/* ひらがなと点字を一行に表示 */}
-        <p>
+        <p className="result-text-group">
           <span className="result-text">{text}</span>
           <span className="result-braille">{brailleText}</span>
         </p>

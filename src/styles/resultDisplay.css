@@ -1,6 +1,6 @@
 .result-display {
-  width: min(200px, 80vw);
-  height: 6rem;
+  width: min(16rem, 80vw);
+  height: 9rem;
   margin-top: 2rem;
   padding: 1rem 2rem;
   border: 2px solid #333;
@@ -14,4 +14,25 @@
   font-weight: bold;
   color: #333;
   text-align: center;
+}
+
+.result-display p {
+  margin: 0.2rem 0;
+}
+
+.result-text {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.result-braille {
+  font-family: 'Noto Sans Braille', sans-serif;  /* 点字フォントを指定 */
+  font-size: 2.5rem;  /* 点字をひらがなより少し大きく */
+  margin-left: 1rem;  /* ひらがなとの間にスペースを空ける */
+  font-weight: bold;
+}
+
+.result-dots {
+  font-size: 1rem;
+  color: #666;
 }
