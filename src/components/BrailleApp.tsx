@@ -1,6 +1,6 @@
 // src/components/BrailleApp.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import BrailleInput from "./BrailleInput";
 import ResultDisplay from "./ResultDisplay";
 import type { BrailleData } from '../data/types';
@@ -11,11 +11,13 @@ const BrailleApp: React.FC = () => {
   const [dots, setDots] = useState<number[]>([]);
   
   // onCharacterConfirmを更新して、ひらがな、点字、数字データを受け取る
-  const handleConfirm = (data: BrailleData) => {
+  // useCallbackで関数をメモ化し、再レンダリング時に新しく生成されないようにする
+  // useStateの更新関数（setCharacter, setBraille, setDots）が安定しているので、依存配列はなし
+  const handleConfirm = useCallback((data: BrailleData) => {
     setCharacter(data.character);
     setBraille(data.braille);
     setDots(data.dots);
-  };
+  }, []);
 
   return (
     <>
