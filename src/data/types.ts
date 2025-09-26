@@ -9,9 +9,15 @@ export type FingerStates = {
   rightRing: boolean;
 };
 
+export type BrailleData = {
+  character: string;
+  braille: string;
+  dots: number[];
+};
+
 export type BrailleMapping = {
   character: string;
-  dots?: BrailleCode;
+  dots: BrailleCode;
+  braille: string;
   combo?: [BrailleCode, BrailleCode];
-  braille?: string;
 };

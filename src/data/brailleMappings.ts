@@ -21,6 +21,7 @@ export const brailleCodes = {
 // ];
 
 // hiraganaTableをもとにbrailleMappingsを生成（現在は清音のみ）
+// オブジェクトをキーと値のペアの配列に変換する（Object.entries）
 export const brailleMappings: BrailleMapping[] = Object.entries(hiraganaTable).map(
   ([character, hexCode]) => {
     return {

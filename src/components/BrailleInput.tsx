@@ -3,11 +3,13 @@ import type { FC } from 'react';
 import FingerButton from './FingerButton';
 import { brailleMappings, brailleCodes } from '../data/brailleMappings';
 import type { FingerStates, BrailleCode } from '../data/types';
-import { getBrailleCharacter } from '../utils/brailleConverter';
+// import { getBrailleCharacter } from '../utils/brailleConverter';
+import { getBrailleData } from '../utils/brailleConverter';
 import '../styles/brailleInput.css';
+import type { BrailleData } from '../data/types';
 
 interface BrailleInputProps {
-  onCharacterConfirm: (char: string) => void;
+  onConfirm: (data: BrailleData) => void;
 }
 
 // インデックスシグネチャ（キーが文字列型で、その値が数値型であるオブジェクト）
@@ -16,7 +18,7 @@ const keyToDotMap: { [key: string]: number } = {
   'j': 4, 'k': 5, 'l': 6
 };
 
-const BrailleInput: FC<BrailleInputProps> = ({ onCharacterConfirm }) => {
+const BrailleInput: FC<BrailleInputProps> = ({ onConfirm }) => {
   // const [fingerStates, setFingerStates] = useState<FingerStates>({
   //   leftIndex: false, leftMiddle: false, leftRing: false,
   //   rightIndex: false, rightMiddle: false, rightRing: false
@@ -65,21 +67,23 @@ const BrailleInput: FC<BrailleInputProps> = ({ onCharacterConfirm }) => {
 
   // pressedKeys の変更を監視して文字を判定
   useEffect(() => {
+
     // 押されているキーがなくなった場合（空のSet）は何も表示しない
-    if (pressedKeys.size === 0) {
-      onCharacterConfirm('');
-      return;
-    }
+    // if (pressedKeys.size === 0) {
+    //   onCharacterAndBrailleConfirm('', '', []);
+    //   return;
+    // }
     
     // ユーティリティ関数を呼び出して文字を判定
-    const character = getBrailleCharacter(pressedKeys);
-    if (character !== null) {
-      onCharacterConfirm(character);
+    const characterData = getBrailleData(pressedKeys);
+
+    if (characterData !== null) {
+      onConfirm(characterData);
     } else {
-      // 点字データ内に見つからない文字の時も、表示文字をクリア
-      onCharacterConfirm('');
+      // characterDataがnullの場合は空の値を渡す
+      onConfirm({ character: '', braille: '', dots: [] });
     }
-  }, [pressedKeys, onCharacterConfirm]);
+  }, [pressedKeys, onConfirm]);
 
   return (
     <div className="braille-input-container">

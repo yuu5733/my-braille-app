@@ -74,7 +74,8 @@ export const hiraganaTable: { [key: string]: number } = {
   ゑ: 0x16,
   を: 0x14,
   ん: 0x34,
-  っ: 0x02
+  っ: 0x02,
+  ー: 0x12,
 };
 //濁音の一覧
 export const dakuonList = "がぎぐげござじずぜぞだぢづでどばびぶべぼ";
@@ -107,7 +108,6 @@ export const goyoonTable: any = {
 
 //記号
 export const kigouTable: any = {
-  ー: [0x12],
   "?": [0x22],
   "!": [0x16],
   "『": [0x30, 0x24],
