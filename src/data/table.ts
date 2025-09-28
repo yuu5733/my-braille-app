@@ -79,10 +79,11 @@ export const hiraganaTable: { [key: string]: number } = {
 };
 //濁音の一覧
 export const dakuonList = "がぎぐげござじずぜぞだぢづでどばびぶべぼ";
+//半濁音の一覧
 export const handakuonList = "ぱぴぷぺぽ";
 
 //拗音→メイン音変換テーブル
-export const yoonTable: any = {
+export const yoonTable: { [key: string]: string } = {
   き: "かくこけ",
   し: "さすそせ",
   ち: "たつとて",
@@ -97,7 +98,7 @@ export const yoonTable: any = {
   ぴ: "ぱぷぽぺ"
 };
 //合拗音
-export const goyoonTable: any = {
+export const goyoonTable: { [key: string]: string } = {
   う: "あいえお",
   く: "かきけこ",
   つ: "たちてと",
@@ -107,7 +108,7 @@ export const goyoonTable: any = {
 };
 
 //記号
-export const kigouTable: any = {
+export const kigouTable: { [key: string]: number[] } = {
   "?": [0x22],
   "!": [0x16],
   "『": [0x30, 0x24],
@@ -123,7 +124,7 @@ export const kigouTable: any = {
 };
 
 //数値
-export const numberTable = [
+export const numberTable: number[] = [
   0x1a,
   0x01,
   0x03,
@@ -136,7 +137,7 @@ export const numberTable = [
   0x0a
 ];
 //アルファベット（aから）
-export const alphabetTable = [
+export const alphabetTable: number[] = [
   0x01,
   0x03,
   0x09,
