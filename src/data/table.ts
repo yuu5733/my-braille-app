@@ -70,7 +70,9 @@ export const hiraganaTable: { [key: string]: number } = {
   れ: 0x1b,
   ろ: 0x1a,
   わ: 0x04,
+  // ゐ: [2,3]
   ゐ: 0x06,
+  // ゑ: [2,3,5]
   ゑ: 0x16,
   を: 0x14,
   ん: 0x34,

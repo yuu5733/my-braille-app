@@ -1,6 +1,7 @@
 import React from 'react';
 import type { FC } from 'react';
 import '../styles/resultDisplay.css';
+import { dotsToHex } from '../utils/dotsToHex';
 
 interface ResultDisplayProps {
   text: string;
@@ -18,8 +19,9 @@ const ResultDisplay: FC<ResultDisplayProps> = ({ text, brailleText, dots }) => {
           <span className="result-braille">{brailleText}</span>
         </p>
         {/* 数字データをその下に表示 */}
-        <p className="result-dots">
-          {dots.length > 0 ? dots.join(', ') : '...'}
+        <p className="result-dots-group">
+          <span className="result-dots">[{dots.length > 0 ? dots.join(', ') : '...'}]</span>、
+          <span className="result-hex">0x{dotsToHex(dots).toString(16).padStart(2, '0')}</span>
         </p>
       </div>
     </div>

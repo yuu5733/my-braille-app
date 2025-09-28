@@ -32,7 +32,15 @@
   font-weight: bold;
 }
 
-.result-dots {
+.result-dots-group {
   font-size: 1rem;
   color: #666;
+}
+
+.result-dots {
+  
+}
+
+result-hex {
+  margin-left: 1rem;
 }
