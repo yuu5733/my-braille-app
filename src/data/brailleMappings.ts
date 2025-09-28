@@ -4,8 +4,24 @@ import { hexToBraille } from '../utils/hexToBraille';
 import type { BrailleMapping } from './types';
 
 export const brailleCodes = {
-  youon_fu: [4, 6],
+  // 濁音符　例）ぎ
+  dakuon_fu: [5],
+  // 半濁音符　例）ぴ
+  handakuon_fu: [6],
+  // 拗音符　例）きゃ
+  youon_fu: [4],
+  // 拗濁音符　例）ぎゃ
+  youdakuon_fu: [4,5],
+  // 拗半濁音符　例）ぴゃ
+  youhandakuon_fu: [4,6],
+  // 数符
   su_fu: [3, 4, 5, 6],
+  // つなぎ符（数字にあ行、またはら行が続く時に使用する）
+  tsunagi_fu: [3, 6],
+  // 外字符
+  gaiji_fu: [5, 6],
+  // 大文字符
+  ohmoji_fu: [6],
 };
 
 // export const brailleMappings: BrailleMapping[] = [
