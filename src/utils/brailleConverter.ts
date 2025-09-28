@@ -33,3 +33,15 @@ export function getBrailleData(pressedKeys: Set<string>): BrailleMapping | null 
 
   return foundMapping ? foundMapping : null;
 }
+
+/**
+ * 押されたキーのSetから、対応する指点字の点の番号（1-6）の配列を生成する
+ * @param pressedKeys 押されているキーのSet
+ * @returns ソートされた点の番号の配列
+ */
+export function getCurrentDots(pressedKeys: Set<string>): number[] {
+  return Array.from(pressedKeys)
+    .map(key => keyToDotMap[key])
+    .filter((dot): dot is number => dot !== undefined) // 点に対応しないキーは除外
+    .sort((a, b) => a - b);
+}

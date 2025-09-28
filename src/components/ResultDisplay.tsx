@@ -20,7 +20,7 @@ const ResultDisplay: FC<ResultDisplayProps> = ({ text, brailleText, dots }) => {
         </p>
         {/* 数字データをその下に表示 */}
         <p className="result-dots-group">
-          <span className="result-dots">[{dots.length > 0 ? dots.join(', ') : '...'}]</span>、
+          <span className="result-dots">[{dots.length > 0 ? dots.join(', ') : '空白'}]</span>、
           <span className="result-hex">0x{dotsToHex(dots).toString(16).padStart(2, '0')}</span>
         </p>
       </div>

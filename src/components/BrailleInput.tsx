@@ -4,7 +4,7 @@ import FingerButton from './FingerButton';
 import { brailleMappings, brailleCodes } from '../data/brailleMappings';
 import type { FingerStates, BrailleCode } from '../data/types';
 // import { getBrailleCharacter } from '../utils/brailleConverter';
-import { getBrailleData } from '../utils/brailleConverter';
+import { getBrailleData, getCurrentDots } from '../utils/brailleConverter';
 import '../styles/brailleInput.css';
 import type { BrailleData } from '../data/types';
 
@@ -80,8 +80,9 @@ const BrailleInput: FC<BrailleInputProps> = ({ onConfirm }) => {
     if (characterData !== null) {
       onConfirm(characterData);
     } else {
-      // characterDataがnullの場合は空の値を渡す
-      onConfirm({ character: '', braille: '', dots: [] });
+      // characterDataがnullの場合は、押されているキーに対応する点の配列のみを取得
+      const currentDots = getCurrentDots(pressedKeys); 
+      onConfirm({ character: '', braille: '', dots: currentDots });
     }
   }, [pressedKeys, onConfirm]);
 
