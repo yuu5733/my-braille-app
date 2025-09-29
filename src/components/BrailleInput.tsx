@@ -67,12 +67,6 @@ const BrailleInput: FC<BrailleInputProps> = ({ onConfirm }) => {
 
   // pressedKeys の変更を監視して文字を判定
   useEffect(() => {
-
-    // 押されているキーがなくなった場合（空のSet）は何も表示しない
-    // if (pressedKeys.size === 0) {
-    //   onCharacterAndBrailleConfirm('', '', []);
-    //   return;
-    // }
     
     // ユーティリティ関数を呼び出して文字を判定
     const characterData = getBrailleData(pressedKeys);
