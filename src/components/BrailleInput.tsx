@@ -19,11 +19,6 @@ const keyToDotMap: { [key: string]: number } = {
 };
 
 const BrailleInput: FC<BrailleInputProps> = ({ onConfirm }) => {
-  // const [fingerStates, setFingerStates] = useState<FingerStates>({
-  //   leftIndex: false, leftMiddle: false, leftRing: false,
-  //   rightIndex: false, rightMiddle: false, rightRing: false
-  // });
-
   // 初期値として、空の Set オブジェクト（String型）を設定。String型の配列にするより便利
   // 重複を許容しないのと、要素の存在チェック (.has()) や削除 (.delete()) が簡単にできるため
   const [pressedKeys, setPressedKeys] = useState(new Set<string>());
