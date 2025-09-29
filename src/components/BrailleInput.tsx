@@ -21,7 +21,6 @@ interface BrailleInputProps {
 }
 
 const BrailleInput: FC<BrailleInputProps> = ({ onConfirm }) => {
-    }
   const { pressedKeys } = useBrailleInput({ onConfirm }); 
 
   return (
