@@ -5,6 +5,8 @@ import { brailleMappings, brailleCodes } from '../data/brailleMappings';
 import type { FingerStates, BrailleCode } from '../data/types';
 // import { getBrailleCharacter } from '../utils/brailleConverter';
 import { getBrailleData, getCurrentDots } from '../utils/brailleConverter';
+import { dotsToHex } from '../utils/dotsToHex';
+import { hexToBraille } from '../utils/hexToBraille';
 import '../styles/brailleInput.css';
 import type { BrailleData } from '../data/types';
 
@@ -62,16 +64,41 @@ const BrailleInput: FC<BrailleInputProps> = ({ onConfirm }) => {
 
   // pressedKeys の変更を監視して文字を判定
   useEffect(() => {
-    
-    // ユーティリティ関数を呼び出して文字を判定
+    const currentDots = getCurrentDots(pressedKeys); // 押されている点を常に取得
+
+    // 1. 対応する点字データ（ひらがな、点字文字、点の配列）を検索
     const characterData = getBrailleData(pressedKeys);
 
     if (characterData !== null) {
+      // 2. マッピングが見つかった場合
       onConfirm(characterData);
     } else {
-      // characterDataがnullの場合は、押されているキーに対応する点の配列のみを取得
-      const currentDots = getCurrentDots(pressedKeys); 
-      onConfirm({ character: '', braille: '', dots: currentDots });
+      // 3. マッピングが見つからなかった場合:
+      
+      let characterText = '';
+      let brailleText = '';
+      
+      if (currentDots.length > 0) {
+        // キーが押されている場合のみ処理
+        const hexCode = dotsToHex(currentDots);
+        
+        // 以下の関数は以前の会話で提供されたユーティリティ関数です
+        // hexToBraille は brailleConverter.ts または別の utils ファイルにあるはずです
+        // 必要に応じてインポートを確認してください
+        //
+        // 押されている点に対応する点字文字を生成
+        brailleText = hexToBraille(hexCode); 
+        
+        // 文字を「不明」に設定
+        characterText = '不明';
+      }
+      
+      // 墨字は「不明」か空、点字は該当する点字か空、点の配列は現在押されているものを渡す
+      onConfirm({ 
+        character: characterText, 
+        braille: brailleText, 
+        dots: currentDots 
+      });
     }
   }, [pressedKeys, onConfirm]);
 
