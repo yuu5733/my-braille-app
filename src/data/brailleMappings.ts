@@ -16,12 +16,20 @@ export const brailleCodes = {
   youhandakuon_fu: [4,6],
   // 数符
   su_fu: [3, 4, 5, 6],
-  // つなぎ符（数字にあ行、またはら行が続く時に使用する）
+  // つなぎ符
+  // (1)数字にあ行、またはら行が続く時に使用する
+  // (2)語中で英語→日本語と変化する場合（A型、X線、Gift券、など）。その間につなぎ符を使用
   tsunagi_fu: [3, 6],
   // 外字符。読点と同じ
   gaiji_fu: [5, 6],
+  // 外字引用符	
+  // 点字で外国語の単語や文を表記する際に、単語の区切りを示すために使用される記号
+  gaijiinyo_fu_kaishi: [2, 3, 6],
+  gaijiinyo_fu_owari: [3, 5, 6],
   // 大文字符
   ohmoji_fu: [6],
+  // 二重大文字符（アルファベットの全部が大文字であることを示す）
+  // 大文字符を2回繰り返す
 };
 
 // export const brailleMappings: BrailleMapping[] = [
