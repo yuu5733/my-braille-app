@@ -58,6 +58,8 @@ export const hiraganaTable: { [key: string]: number } = {
 // };
 
 export const hiraganaKigouTable: { [key: string]: number } = {
+  // 空白 []。点字では、よく使われる。指点字では使わない
+  "␣": 0x00,
   // 長音 [2,5]
   ー: 0x12,
   // 読点 [5,6]。点字では、スペースが続く。外字符と同じ。指点字では使わない？

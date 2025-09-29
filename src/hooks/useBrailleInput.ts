@@ -43,14 +43,10 @@ export function useBrailleInput({ onConfirm }: UseBrailleInputProps) {
       onConfirm(characterData);
     } else {
       // マッピングが見つからなかった場合: 現在の押下状態を表示
-      let characterText = '';
-      let brailleText = '';
-      
-      if (currentDots.length > 0) {
         const hexCode = dotsToHex(currentDots); // 押されている点に対応する16進コードを生成
-        brailleText = hexToBraille(hexCode); // 押されている点に対応する点字文字を生成
-        characterText = '不明';
-      }
+        const brailleText = hexToBraille(hexCode); // 押されている点に対応する点字文字を生成
+        const characterText = '不明';
+
       
       // 墨字は「不明」か空、点字は該当する点字か空、点の配列は現在押されているものを渡す
       onConfirm({ 
