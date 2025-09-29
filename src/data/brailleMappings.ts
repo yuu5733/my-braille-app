@@ -44,7 +44,7 @@ export const brailleCodes = {
 //   { character: '1', combo: [brailleCodes.su_fu, [1]] },
 // ];
 
-// スプレッド構文 (...) を使って二つのテーブルを結合する
+// スプレッド構文を使って二つのテーブルを結合する
 // キーが重複した場合は後者が優先される
 const combinedTable = {
   ...hiraganaTable,
