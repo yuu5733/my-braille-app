@@ -74,6 +74,37 @@ export const hiraganaKigouTable: { [key: string]: number } = {
   "・": 0x10,
 };
 
+export const brailleCodes = {
+  // 濁音符　例）ぎ。中黒と同じ。[5]
+  dakuon_fu: 0x10,
+  // 半濁音符　例）ぴ。[6]
+  handakuon_fu: 0x20,
+  // 拗音符　例）きゃ。[4]
+  youon_fu: 0x08,
+  // 拗濁音符　例）ぎゃ。[4,5]
+  youdakuon_fu: 0x18,
+  // 拗半濁音符　例）ぴゃ。[4,6]
+  youhandakuon_fu: 0x28,
+  // 数符。[3, 4, 5, 6]
+  su_fu: 0x3c,
+  // つなぎ符。[3, 6]
+  // (1)数字にあ行、またはら行が続く時に使用する
+  // (2)語中で英語→日本語と変化する場合（A型、X線、Gift券、など）。その間につなぎ符を使用
+  tsunagi_fu: 0x24,
+  // 外字符。読点と同じ。[5, 6]
+  gaiji_fu: 0x30,
+  // 外字引用符	
+  // 点字で外国語の単語や文を表記する際に、単語の区切りを示すために使用される記号
+  // 外字引用符（開始）。[2, 3, 6]
+  // 外字引用符（終わり）、「ん」と同じ。[3, 5, 6]
+  gaijiinyo_fu_kaishi: 0x26,
+  gaijiinyo_fu_owari: 0x34,
+  // 大文字符。[6]
+  ohmoji_fu: 0x20,
+  // 二重大文字符（アルファベットの全部が大文字であることを示す）
+  // 大文字符を2回繰り返す
+};
+
 //数値
 export const numberTable: { [key: string]: number } = {
   // 1:アルファベットのに「a」同じ [1]
