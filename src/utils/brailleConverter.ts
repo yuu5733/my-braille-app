@@ -1,5 +1,15 @@
-import { brailleMappings } from '../data/brailleMappings';
+// 1. コアライブラリ (※ 無し)
+
+// 2. 型定義 (Type Imports)
 import type { BrailleMapping } from '../data/types';
+
+// 3. サードパーティライブラリ (※ 無し)
+// 4. プロジェクト内のモジュール / エイリアスパス (※ 無し)
+// 5. 相対パスによるインポート (※ 無し)
+
+// 6. スタイルシート / アセット
+import { brailleMappings } from '../data/brailleMappings';
+import { brailleCodes } from '../data/table';
 
 // キーと点字の点の対応マップ
 const keyToDotMap: { [key: string]: number } = {

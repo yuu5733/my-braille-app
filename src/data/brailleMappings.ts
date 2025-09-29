@@ -1,7 +1,31 @@
-import { hiraganaTable, hiraganaKigouTable, numberTable, alphabetTable } from './table';
+// 1. コアライブラリ (※ 無し)
+
+// 2. 型定義 (Type Imports)
+import type { BrailleMapping } from './types';
+
+// 3. サードパーティライブラリ (※ 無し)
+
+// 4. プロジェクト内のモジュール / エイリアスパス
 import { hexToDots } from '../utils/hexToDots';
 import { hexToBraille } from '../utils/hexToBraille';
-import type { BrailleMapping } from './types';
+
+// 5. 相対パスによるインポート (※ 無し)
+
+// 6. スタイルシート / アセット
+import { hiraganaTable, hiraganaKigouTable, numberTable, alphabetTable } from './table';
+
+// ----------------------------------------------------------------------
+// 前置符のキーとモードのマッピングの定義
+// ----------------------------------------------------------------------
+// 濁音符（点5）
+export const dakuonFuKey = 'k';
+
+// 半濁音符（点6）
+export const handakuonFuKey = 'l'; 
+
+// 拗音符（点4）
+export const youonFuKey = 'j';
+
 
 // export const brailleMappings: BrailleMapping[] = [
 //   { character: 'あ', dots: [1] },
