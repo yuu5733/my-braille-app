@@ -37,7 +37,7 @@ export const brailleCodes = {
 // ];
 
 // スプレッド構文 (...) を使って二つのテーブルを結合する
-// キーが重複した場合に後者が優先される
+// キーが重複した場合は後者が優先される
 const combinedTable = {
   ...hiraganaTable,
   ...hiraganaKigouTable,
