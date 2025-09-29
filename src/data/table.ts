@@ -1,29 +1,3 @@
-/*
- * Braille data is adapted from https://github.com/uhyo/tenji
- * which is licensed under the MIT License.
- *
- * The MIT License
- *
- * Copyright (c) 2018 Uhyo
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
 //清音のテーブル
 export const hiraganaTable: { [key: string]: number } = {
   あ: 0x01,
@@ -72,104 +46,113 @@ export const hiraganaTable: { [key: string]: number } = {
   わ: 0x04,
   // ゐ: [2,3]
   ゐ: 0x06,
-  // ゑ: [2,3,5]
-  ゑ: 0x16,
+  // ゑ: [2,3,5]。感嘆符と同じ点字になるため、ひとまず使用しない
+  // ゑ: 0x16,
   を: 0x14,
   ん: 0x34,
   っ: 0x02,
   ー: 0x12,
 };
-//濁音の一覧
-export const dakuonList = "がぎぐげござじずぜぞだぢづでどばびぶべぼ";
-//半濁音の一覧
-export const handakuonList = "ぱぴぷぺぽ";
 
-//拗音→メイン音変換テーブル
-export const yoonTable: { [key: string]: string } = {
-  き: "かくこけ",
-  し: "さすそせ",
-  ち: "たつとて",
-  に: "なぬのね",
-  ひ: "はふほへ",
-  み: "まむもめ",
-  り: "らるろれ",
-  ぎ: "がぐごげ",
-  じ: "ざずぞぜ",
-  ぢ: "だづどで",
-  び: "ばぶぼべ",
-  ぴ: "ぱぷぽぺ"
-};
-//合拗音
-export const goyoonTable: { [key: string]: string } = {
-  う: "あいえお",
-  く: "かきけこ",
-  つ: "たちてと",
-  ふ: "はひへほ",
-  ぐ: "がぎげご",
-  ゔ: "ばびべぼ"
-};
+// export const kyoutsuKigouTable: { [key: string]: number } = {
+// };
 
-//記号
-export const kigouTable: { [key: string]: number[] } = {
-  "?": [0x22],
-  "!": [0x16],
-  "『": [0x30, 0x24],
-  "』": [0x24, 0x06],
-  "%": [0x30, 0x0f],
-  // アンパサンドは前後にスペースが必要
-  "&": [0, 0x30, 0x2f, 0],
-  "#": [0x30, 0x29],
-  "*": [0x30, 0x21],
-  ",": [0x20],
-  ";": [0x60],
-  ":": [0x12]
+export const hiraganaKigouTable: { [key: string]: number } = {
+  // 長音 [2,5]
+  ー: 0x12,
+  // 読点 [5,6]。点字では、スペースが続く。外字符と同じ。指点字では使わない？
+  //"、": 0x30,
+  // 句点 [2,5,6]。点字では、スペースが2つ続く。指点字では使わない？
+  //"。": 0x32,
+  // 疑問符 [2,6]
+  "？": 0x22,
+  // 感嘆符 [2,3,5]
+  "！": 0x16,
+  // 中黒 [5]。点字では、スペースが続く。濁音符と同じ
+  "・": 0x10,
 };
 
 //数値
-export const numberTable: number[] = [
-  0x1a,
-  0x01,
-  0x03,
-  0x09,
-  0x19,
-  0x11,
-  0x0b,
-  0x1b,
-  0x13,
-  0x0a
-];
-//アルファベット（aから）
-export const alphabetTable: number[] = [
-  0x01,
-  0x03,
-  0x09,
-  0x19,
-  0x11,
-  0x0b,
-  0x1b,
-  0x13,
-  0x0a,
-  0x1a,
-  0x05,
-  0x07,
-  0x0d,
-  0x1d,
-  0x15,
-  0x0f,
-  0x1f,
-  0x17,
-  0x0e,
-  0x1e,
-  0x25,
-  0x27,
-  0x3a,
-  0x2d,
-  0x3d,
-  0x35
-];
-// アルファベットで使用可能な記号類
-export const alphabetKigouTable = {
-  "/": [0x38, 0x0c],
-  ".": [0x32],
-  "．": [0x32]
+export const numberTable: { [key: string]: number } = {
+  // アルファベットのに「a」同じ [1]
+  "1": 0x01,
+  // アルファベットのに「b」同じ [1,2]
+  "2": 0x03,
+  // アルファベットのに「c」同じ [1,4]
+  "3": 0x09,
+  // アルファベットのに「d」同じ [1,4,5]
+  "4": 0x19,
+  // アルファベットのに「e」同じ [1,5]
+  "5": 0x11,
+  // アルファベットのに「f」同じ [1,2,4]
+  "6": 0x0b,
+  // アルファベットのに「g」同じ [1,2,4,5]
+  "7": 0x1b,
+  // アルファベットのに「h」同じ [1,2,5]
+  "8": 0x13,
+  // アルファベットのに「i」同じ [2,4]
+  "9": 0x0a,
+  // アルファベットのに「j」同じ [2,4,5]
+  "0": 0x1a,
+  // 小数点
+  ".": 0x02,
+  // コンマ（位取り点）
+  ",": 0x04
+};
+
+//アルファベット（a-z）
+export const alphabetTable: { [key: string]: number } = {
+  // 数字の「1」と同じ
+  a: 0x01,
+  // 数字の「2」と同じ
+  b: 0x03,
+  // 数字の「3」と同じ
+  c: 0x09,
+  // 数字の「4」と同じ
+  d: 0x19,
+  // 数字の「5」と同じ
+  e: 0x11,
+  // 数字の「6」と同じ
+  f: 0x0b,
+  // 数字の「7」と同じ
+  g: 0x1b,
+  // 数字の「8」と同じ
+  h: 0x13,
+  // 数字の「9」と同じ
+  i: 0x0a,
+  // 数字の「0」と同じ
+  j: 0x1a,
+  // 「a」に3点を加える
+  k: 0x05,
+  // 「b」に3点を加える
+  l: 0x07,
+  // 「c」に3点を加える
+  m: 0x0d,
+  // 「d」に3点を加える
+  n: 0x1d,
+  // 「e」に3点を加える
+  o: 0x15,
+  // 「f」に3点を加える
+  p: 0x0f,
+  // 「g」に3点を加える
+  q: 0x1f,
+  // 「h」に3点を加える
+  r: 0x17,
+  // 「i」に3点を加える
+  s: 0x0e,
+  // 「j」に3点を加える
+  t: 0x1e,
+  // 「a」に3と6の点を加える
+  u: 0x25,
+  // 「b」に3と6の点を加える
+  v: 0x27,
+  // 特殊。wは、「J」に6の点を加える。
+  // ブライユ点字が考案された時点では、点字はフランス語でほとんど用いられないWを除いたため
+  w: 0x3a,
+  // 「c」に3と6の点を加える
+  x: 0x2d,
+  // 「d」に3と6の点を加える
+  y: 0x3d,
+  // 「e」に3と6の点を加える
+  z: 0x35
 };

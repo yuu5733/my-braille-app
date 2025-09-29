@@ -1,10 +1,10 @@
-import { hiraganaTable } from './table';
+import { hiraganaTable, hiraganaKigouTable, numberTable, alphabetTable } from './table';
 import { hexToDots } from '../utils/hexToDots';
 import { hexToBraille } from '../utils/hexToBraille';
 import type { BrailleMapping } from './types';
 
 export const brailleCodes = {
-  // 濁音符　例）ぎ
+  // 濁音符　例）ぎ。中黒と同じ。
   dakuon_fu: [5],
   // 半濁音符　例）ぴ
   handakuon_fu: [6],
@@ -18,7 +18,7 @@ export const brailleCodes = {
   su_fu: [3, 4, 5, 6],
   // つなぎ符（数字にあ行、またはら行が続く時に使用する）
   tsunagi_fu: [3, 6],
-  // 外字符
+  // 外字符。読点と同じ
   gaiji_fu: [5, 6],
   // 大文字符
   ohmoji_fu: [6],
@@ -36,9 +36,18 @@ export const brailleCodes = {
 //   { character: '1', combo: [brailleCodes.su_fu, [1]] },
 // ];
 
-// hiraganaTableをもとにbrailleMappingsを生成（現在は清音のみ）
+// スプレッド構文 (...) を使って二つのテーブルを結合する
+// キーが重複した場合に後者が優先される
+const combinedTable = {
+  ...hiraganaTable,
+  ...hiraganaKigouTable,
+  // ...numberTable,
+  // ...alphabetTable,
+};
+
+// hiraganaTableをもとにbrailleMappingsを生成
 // オブジェクトをキーと値のペアの配列に変換する（Object.entries）
-export const brailleMappings: BrailleMapping[] = Object.entries(hiraganaTable).map(
+export const brailleMappings: BrailleMapping[] = Object.entries(combinedTable).map(
   ([character, hexCode]) => {
     return {
       character: character, // ひらがな
