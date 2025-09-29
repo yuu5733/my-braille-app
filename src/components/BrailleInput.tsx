@@ -3,7 +3,6 @@ import type { FC } from 'react';
 import FingerButton from './FingerButton';
 import { brailleMappings, brailleCodes } from '../data/brailleMappings';
 import type { FingerStates, BrailleCode } from '../data/types';
-// import { getBrailleCharacter } from '../utils/brailleConverter';
 import { getBrailleData, getCurrentDots } from '../utils/brailleConverter';
 import { dotsToHex } from '../utils/dotsToHex';
 import { hexToBraille } from '../utils/hexToBraille';
