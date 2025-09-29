@@ -3,12 +3,14 @@
 import React, { useState, useCallback } from 'react';
 import BrailleInput from "./BrailleInput";
 import ResultDisplay from "./ResultDisplay";
-import type { BrailleData } from '../data/types';
+import type { BrailleData, InputMode } from '../data/types';
 
 const BrailleApp: React.FC = () => {
   const [character, setCharacter] = useState('');
   const [braille, setBraille] = useState('');
   const [dots, setDots] = useState<number[]>([]);
+  const [currentMode, setCurrentMode] = useState<InputMode>('Kana');
+  const [pendingData, setPendingData] = useState<BrailleData | null>(null);
   
   // onCharacterConfirmを更新して、ひらがな、点字、数字データを受け取る
   // useCallbackで関数をメモ化し、再レンダリング時に新しく生成されないようにする
