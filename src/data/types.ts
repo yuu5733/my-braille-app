@@ -22,10 +22,13 @@ export type BrailleMapping = {
   combo?: [BrailleCode, BrailleCode];
 };
 
-export type InputMode = 
-  | 'Kana'       // 基本のがな入力モード
-  | 'Suuji'      // 数字モード
-  | 'Alphabet'   // 外来語符 (英字モード)
-  | 'Dakuon'     // 濁音符待機モード
-  | 'Handakuon'  // 半濁音符待機モード
-  | 'Youon';     // 半濁音符待機モード
+export type InputMode =
+  | 'Kana'         // 基本のがな入力モード
+  | 'Suuji'        // 数字モード
+  | 'Alphabet'     // 外来語 (英字モード)
+  | 'Dakuon'       // 濁音待機モード
+  | 'Handakuon'    // 半濁音待機モード
+  | 'Youon'        // 拗音待機モード
+  | 'YouDakuon'    // 拗濁音待機モード
+  | 'YouHandakuon' // 拗半濁音待機モード
+  | 'GouYouon';    // 合拗音待機モード

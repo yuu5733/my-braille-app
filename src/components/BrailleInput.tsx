@@ -3,7 +3,7 @@ import React from 'react';
 
 // 2. 型定義 (Type Imports)
 import type { FC } from 'react';
-import type { BrailleData } from '../data/types';
+import type { BrailleData, InputMode } from '../data/types';
 
 // 3. サードパーティライブラリ (※ 無し)
 
@@ -18,10 +18,11 @@ import '../styles/brailleInput.css';
 
 interface BrailleInputProps {
   onConfirm: (data: BrailleData) => void;
+  onModeChange: (newMode: InputMode) => void;
 }
 
-const BrailleInput: FC<BrailleInputProps> = ({ onConfirm }) => {
-  const { pressedKeys } = useBrailleInput({ onConfirm }); 
+const BrailleInput: FC<BrailleInputProps> = ({ onConfirm, onModeChange }) => {
+  const { pressedKeys } = useBrailleInput({ onConfirm, onModeChange }); 
 
   return (
     <div className="braille-input-container">

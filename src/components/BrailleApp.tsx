@@ -1,9 +1,19 @@
-// src/components/BrailleApp.tsx
-
+// 1. コアライブラリ
 import React, { useState, useCallback } from 'react';
+
+// 2. 型定義 (Type Imports)
+import type { BrailleData, InputMode } from '../data/types';
+
+// 3. サードパーティライブラリ (※ 無し)
+
+// 4. プロジェクト内のモジュール / エイリアスパス
 import BrailleInput from "./BrailleInput";
 import ResultDisplay from "./ResultDisplay";
-import type { BrailleData, InputMode } from '../data/types';
+import ModeDisplay from './ModeDisplay'; 
+
+// 5. 相対パスによるインポート
+
+// 6. スタイルシート / アセット
 
 const BrailleApp: React.FC = () => {
   const [character, setCharacter] = useState('');
@@ -24,7 +34,8 @@ const BrailleApp: React.FC = () => {
   return (
     <>
       <h1>指点字練習アプリ</h1>
-      <BrailleInput onConfirm={handleConfirm} />
+      <ModeDisplay currentMode={currentMode} /> 
+      <BrailleInput onConfirm={handleConfirm} onModeChange={setCurrentMode} />
       <ResultDisplay text={character} brailleText={braille} dots={dots} />
     </>
   );

@@ -1,0 +1,64 @@
+/* 右寄せのためのラッパー */
+.mode-display-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  /* 右揃え */
+  width: 100%;
+  /* 親要素いっぱいに広げる */
+  margin-bottom: 1rem;
+}
+
+.mode-display {
+  padding: 0.3rem 0.8rem;
+  border-radius: 8px;
+  /* 角丸四角形 */
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  /* モード切り替え時のアニメーション */
+}
+
+/* 1. かなモード (デフォルト/常に表示/灰色) */
+.mode-display--kana {
+  background-color: #e0e0e0;
+  color: #555;
+}
+
+/* 2. 数字モード (永続/青系統) */
+.mode-display--suuji {
+  background-color: #cce5ff;
+  color: #004085;
+  border: 1px solid #b8daff;
+}
+
+/* 3. 英字モード (永続/緑系統) */
+.mode-display--alphabet {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+/* 4. 待機モード (一時的/黄色系統) */
+.mode-display--wait {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  /* 待機中であることを強調するための軽いアニメーション */
+  animation: pulse-wait 1.5s infinite;
+}
+
+@keyframes pulse-wait {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.85;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
