@@ -34,8 +34,10 @@ const BrailleApp: React.FC = () => {
   return (
     <>
       <h1>指点字練習アプリ</h1>
-      <ModeDisplay currentMode={currentMode} /> 
-      <BrailleInput onConfirm={handleConfirm} onModeChange={setCurrentMode} />
+      <div className="input-area-wrapper">
+        <ModeDisplay currentMode={currentMode} /> 
+        <BrailleInput onConfirm={handleConfirm} onModeChange={setCurrentMode} />
+      </div>
       <ResultDisplay text={character} brailleText={braille} dots={dots} />
     </>
   );
