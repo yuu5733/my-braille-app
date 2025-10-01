@@ -17,6 +17,19 @@ const keyToDotMap: { [key: string]: number } = {
   'j': 4, 'k': 5, 'l': 6
 };
 
+// 点の番号 -> キーボードのキー への逆マッピング
+const dotToKeyMap: { [key: number]: string } = {
+    1: 'f', 2: 'd', 3: 's',
+    4: 'j', 5: 'k', 6: 'l'
+};
+
+/** 濁音符 (0x10) の点5に対応するキー 'k' を取得 */
+// const dokuonFuDots = hexToDots(brailleCodes.dakuonFu);
+export const dakuonFuKey = dotToKeyMap[5]; 
+
+/** 半濁音符 (0x20) の点6に対応するキー 'l' を取得 */
+export const handakuonFuKey = dotToKeyMap[6]; 
+
 function arraysEqual(a: number[], b: number[]): boolean {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) {
