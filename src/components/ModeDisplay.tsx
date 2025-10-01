@@ -61,7 +61,7 @@ const ModeDisplay: FC<ModeDisplayProps> = ({ currentMode }) => {
   const { label, className } = getModeConfig(currentMode);
 
   return (
-    <div className="mode-display-wrapper"> {/* 右寄せのためのラッパー */}
+    <div className="mode-display-wrapper">
       <div className={`mode-display mode-display--${className}`}>
         {label}
       </div>
