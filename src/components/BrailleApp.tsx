@@ -16,7 +16,7 @@ import ModeDisplay from './ModeDisplay';
 
 // 6. スタイルシート / アセット
 
-const BrailleApp: React.FC = () => {
+const BrailleApp: FC = () => {
   const [character, setCharacter] = useState('');
   const [braille, setBraille] = useState('');
   const [dots, setDots] = useState<number[]>([]);
