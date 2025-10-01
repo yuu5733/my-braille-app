@@ -17,12 +17,10 @@ import FingerButton from './FingerButton';
 import '../styles/brailleInput.css';
 
 interface BrailleInputProps {
-  onConfirm: (data: BrailleData) => void;
-  onModeChange: (newMode: InputMode) => void;
+  pressedKeys: Set<string>; 
 }
 
-const BrailleInput: FC<BrailleInputProps> = ({ onConfirm, onModeChange }) => {
-  const { pressedKeys } = useBrailleInput({ onConfirm, onModeChange }); 
+const BrailleInput: FC<BrailleInputProps> = ({ pressedKeys }) => {
 
   return (
     <div className="braille-input-container">

@@ -53,7 +53,7 @@ export function useKeyboardListener() {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);
     };
-  }, [pressedKeys]); // pressedKeysが変わるたびに再登録される
+  }, []);
 
   return pressedKeys;
 }
