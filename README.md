@@ -81,7 +81,7 @@
 ### useBrailleLogic.ts
 ```mermaid
 graph TD
-    A[開始: pressedKeysが変化] --> B{キーは全て離されたか?<br>(isKeysReleased == true)};
+    A[開始: pressedKeysが変化] --> B{キーは全て離されたか?<br>(isKeysReleased == true)}; 
 
     subgraph A_RELEASED [A. キー解放時の確定処理 (即時実行)]
         B -- Yes --> C{pendingDataは存在するか?};
