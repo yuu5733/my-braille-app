@@ -82,6 +82,8 @@
 
 ### useBrailleLogic.ts
 
+このフックの目的は、キーボードからの生の入力 (pressedKeys) を受け取り、**「いつ」「どの文字を」「どのモードで」**確定するかを決定し、その結果を親コンポーネントに伝えることです（後で、分割することもあるかもですが）。
+
 ```mermaid
 flowchart TD
     start[useEffect開始 / pressedKeys変更] --> isReleased{キーは全て<br>離されたか？};
