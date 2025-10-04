@@ -12,7 +12,8 @@
 ## 🚀 使い方
 
 ### 1. アプリへのアクセス
-ある程度形になったら、Github Pagesや、Vercelなどで公開します
+
+ある程度形になったら、Github Pages や、Vercel などで公開します
 
 ### 2. 入力方法 (指点字キーアサイン)
 
@@ -29,7 +30,7 @@
 - **「あ」** (1 点): `F`キーを押す
 - **「い」** (1, 2 点): `F`と`D`キーを同時に押す
 - **「ん」** (3, 5, 6 点): `S`, `K`, `L`キーを同時に押す
-- **「ざ」** (5点): `K`キーを押下したのち、(1, 5, 6 点): `F`, `K`, `L`キーを同時に押す
+- **「ざ」** (5 点): `K`キーを押下したのち、(1, 5, 6 点): `F`, `K`, `L`キーを同時に押す
 
 ## 💻 技術スタック
 
@@ -67,8 +68,8 @@
 
 - 拗音、長音、促音などの連符の完全対応。
 - 練習モードやゲームモードの追加。
-- ログイン機能（メール[パスワードはハッシュ化して保存]、Google連携）
-  - Auth0なども使えそうなら
+- ログイン機能（メール[パスワードはハッシュ化して保存]、Google 連携）
+  - Auth0 なども使えそうなら
 - 成績の記録
 - モバイルデバイスでも使えるようにする。
 - アクセシビリティの改善（スクリーンリーダーのキーボードショートカットとバッティングする恐れがある）
@@ -78,44 +79,67 @@
 [ライセンスを記載予定 (例: MIT License)]
 
 ## ロジック部分
+
 ### useBrailleLogic.ts
+
 ```mermaid
-graph TD
-    A[開始: pressedKeysが変化] --> B{キーは全て離されたか?<br>(isKeysReleased == true)}; 
+flowchart TD
+    start[useEffect開始 / pressedKeys変更] --> isReleased{キーは全て<br>離されたか？};
+        isReleased -- Yes --> checkPending{pendingDataは<br>存在するか？};
+        isReleased -- No --> setTimer[100msタイマー設定];
 
-    subgraph A_RELEASED [A. キー解放時の確定処理 (即時実行)]
-        B -- Yes --> C{pendingDataは存在するか?};
-        C -- Yes --> D{Dakuonモード & 確定文字は'濁音符'?};
-        D -- Yes: モード維持 --> E[pendingDataをクリア<br>処理終了(return)];
-        D -- No --> F{Dakuonモードか?};
-        
-        F -- Yes --> G{確定文字をdakuonMapで変換};
-        G --> H[変換結果を出力 (onOutput)];
-        H --> I[Modeを'Kana'にリセット<br>setCurrentMode('Kana')];
-        I --> J[処理終了後のクリア<br>setPendingData(null)];
-
-        F -- No: Kanaモード --> K{確定文字は'濁音符'か?};
-        K -- Yes --> L[Modeを'Dakuon'に設定<br>setCurrentMode('Dakuon')];
-        L --> J;
-        
-        K -- No & '不明'でない --> M[清音をonOutputで出力];
-        M --> J;
-        
-        J --> Z[終了];
+    subgraph A. キー解放時の確定ロジック
+        checkPending -- No --> endRelease[Stateクリア / 終了];
+        checkPending -- Yes --> checkDakuonMaintain{Dakuonモード<br>かつ<br>濁音符単独か？};
     end
 
-    subgraph B_PRESSED [B. キー押下時の待機データ更新 (100msタイマー内)]
-        B -- No --> N[100msタイマー開始<br>古いタイマーはキャンセル];
-        N --> O{タイマー発火};
-        O --> P{単独で'k'キー(濁音符)か?};
-        
-        P -- Yes --> Q[Modeを'Dakuon'に設定<br>setCurrentMode('Dakuon')];
-        Q --> R[pendingDataを'濁音符'に設定<br>表示を更新 (onDisplayUpdate)];
-        R --> Z;
+        subgraph A-1. 濁音モード維持 kキーを押して離しただけ
+            checkDakuonMaintain -- Yes --> maintainDakuon[画面クリア / pendingDataクリア<br>モード維持（return）];
+            maintainDakuon --> endRelease;
+        end
 
-        P -- No --> S{getBrailleDataで点字文字を検索};
-        S -- 見つかった(ex: 'か') --> T[pendingDataを文字データに設定<br>表示を更新];
-        S -- 見つからない(ex: 不明) --> U[pendingDataを'不明'に設定<br>表示を更新];
-        T --> Z;
-        U --> Z;
+        subgraph A-2. 濁音/清音確定 濁音モードから抜ける
+            checkDakuonMaintain -- No --> checkCurrentMode{現在のモードは<br>Dakuonか？};
+            checkCurrentMode -- Yes --> processDakuon{濁音化を試行（dakuonMap参照）};
+            processDakuon -->|成功| outputDakuon[濁音文字を出力];
+            processDakuon -->|失敗| outputKanaDakuon[清音文字を出力];
+            outputDakuon --> resetModeA[onModeChange（'Kana'）<br>setCurrentMode（'Kana'）];
+            outputKanaDakuon --> resetModeA;
+            resetModeA --> endRelease;
+        end
+
+        subgraph A-3/A-4. Kanaモードでの確定
+            checkCurrentMode -- No --> checkDakuonFu{確定文字は<br>濁音符か？};
+            checkDakuonFu -- Yes --> toDakuonMode[onModeChange（'Dakuon'）<br>setCurrentMode（'Dakuon'）];
+            toDakuonMode --> endRelease;
+
+            checkDakuonFu -- No --> checkKana{確定文字は<br>不明でないか？};
+            checkKana -- Yes --> outputKana[清音文字を出力];
+            checkKana -- No --> endRelease;
+            outputKana --> endRelease;
+        end
+
+    subgraph B. キー押下時のデバウンスロジック
+        setTimer --> cleanup(以前のタイマーをキャンセル);
+        setTimer --> onTimeout[100ms後<br>タイマー発火];
+
+        onTimeout --> checkDakuonKey{kキー単独押下か？};
     end
+
+        subgraph B-1. 濁音モードへ移行
+            checkDakuonKey -- Yes --> enterDakuonMode[setCurrentMode（'Dakuon'）<br>onModeChange（'Dakuon'）<br>pendingDataに濁音符をセット];
+            enterDakuonMode --> timerEnd(タイマー処理終了);
+        end
+
+        subgraph B-2. 通常の点字入力
+            checkDakuonKey -- No --> getBraille{getBrailleDataで<br>点字データを検索};
+            getBraille --> isFound{有効な点字<br>データが見つかったか？};
+            isFound -- Yes --> updateDisplay[pendingData/Displayを更新];
+            isFound -- No --> updateUnknown[pendingData/Displayを<br>「不明」で更新];
+        end
+
+  updateDisplay --> timerEnd;
+  updateUnknown --> timerEnd;
+
+  timerEnd --> fin[useEffect終了];
+```
