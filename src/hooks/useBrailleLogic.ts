@@ -5,9 +5,12 @@ import { useEffect, useState } from 'react';
 import type { BrailleData, InputMode } from '../data/types'; 
 
 // 3. サードパーティライブラリ (※ 無し)
-import { useKeyboardListener } from './useKeyboardListener';
 
 // 4. プロジェクト内のモジュール / エイリアスパス
+import { useKeyboardListener } from './useKeyboardListener';
+import { useBrailleInputTiming } from './useBrailleInputTiming';
+import { useBrailleModeManager } from './useBrailleModeManager';
+import { useBrailleOutputProcessor } from './useBrailleOutputProcessor';
 import { getCurrentDots, dakuonFuKey } from '../utils/brailleConverter';
 import { dotsToHex } from '../utils/dotsToHex';
 import { hexToBraille } from '../utils/hexToBraille';
@@ -30,148 +33,91 @@ interface UseBrailleLogicProps {
 }
 
 export function useBrailleLogic({ onOutput, onDisplayUpdate, onModeChange }: UseBrailleLogicProps) {
-  // キーボードイベントの管理
+  // 1. キー入力の監視
   const pressedKeys = useKeyboardListener(); 
   
-  // 状態管理
-  const [currentMode, setCurrentMode] = useState<InputMode>('Kana');
+  // 2. タイミング処理 (デバウンス)
+  const { stabilizedKeys, isKeysReleased } = useBrailleInputTiming(pressedKeys); // ★ NEW
+  
+  // 3. モード管理
+  // stabilizedKeysが更新されると、モード変更キーの判定（kキー単独押下）が実行される
+  const { currentMode, setCurrentMode } = useBrailleModeManager(stabilizedKeys, onModeChange); // ★ NEW
+
+  // 4. 待機データ
   const [pendingData, setPendingData] = useState<BrailleData | null>(null);
 
+  // 5. 確定ロジック (Processorの初期化)
+  const { processOutput } = useBrailleOutputProcessor(
+    pendingData,
+    currentMode,
+    onOutput,
+    onModeChange,
+    setCurrentMode
+  );
 
-  // ModeDisplayに渡すためのモードチェンジを親に伝播
-  // useEffect(() => {
-  //   onModeChange(currentMode);
-  // }, [currentMode, onModeChange]);
-
-
+  // -----------------------------------------------------
+  // useEffect: メインロジック
+  // -----------------------------------------------------
   useEffect(() => {
-    const currentDots = getCurrentDots(pressedKeys);
-    const keys = Array.from(pressedKeys); 
-    const isKeysReleased = pressedKeys.size === 0;
-
-     // -----------------------------------------------------
-    // A. キーが全て離された場合（文字確定のタイミング）
-    // -----------------------------------------------------
-  if (isKeysReleased) {
-    if (pendingData) {
-      const confirmedCharacter = pendingData.character;
-
-      // --------------------------------------------------
-      // 濁音符単独入力直後の解放かどうか
-      // --------------------------------------------------
-      if (currentMode === 'Dakuon' && confirmedCharacter === '濁音符') {
-          // Dakuonキーを押して離したが、次の入力がない場合（待機モード継続）
-          // 何もせず、StateもModeもリセットしないことで、モードを維持する！
-          // Dakuonモードに設定されているため、次の入力が来たら1.の処理に入る
-          setPendingData(null); // 表示はクリア
+    // A. キーが全て離された場合（確定処理）
+    if (isKeysReleased) {
+      if (pendingData) {
+        // Processorを呼び出し、確定処理を実行。
+        const isModeMaintained = processOutput();
+        
+        // 処理の結果、モードが維持された（濁音符単独入力）場合を除き、pendingDataをリセット
+        // 濁音符単独入力時は、processOutput内で pendingData/Display のクリアが完了している
+        if (!isModeMaintained) {
+          setPendingData(null); 
           onDisplayUpdate({ character: '', braille: '', dots: [] });
-          return; // モードをリセットせずに終了
+        }
+      } else {
+        // pendingDataがない状態でキーが離された場合も表示をクリア
+        onDisplayUpdate({ character: '', braille: '', dots: [] });
       }
-
-      // 1. 濁音待機モードの場合の処理
-      if (currentMode === 'Dakuon') {
-          // 濁音符自体は文字ではないので、濁音符が待機データに入っていた場合は確定処理をスキップ
-          if (confirmedCharacter === '濁音符') {
-              // 濁音符単独で入力が終わった場合、濁音化はせずモードをKanaに戻すだけ
-              // 確定文字は出力しない
-          } else {
-              // 清音の点字が検出された場合（例: 'か'）
-              const dakuonChar = dakuonMap[confirmedCharacter];
-          
-              if (dakuonChar) {
-                  // 濁音化成功: 'が' を出力
-                  onOutput(dakuonChar);
-              } else if (confirmedCharacter !== '不明') {
-                  // 濁音化失敗: 濁音化できない文字の場合、清音をそのまま出力する（例：濁音符の後に'あ'）
-                  // onOutput(confirmedCharacter);
-              }
-          }
-          // 濁音処理を終えたら、必ずモードをKanaに戻す（内部・外部両方）
-          onModeChange('Kana');
-          setCurrentMode('Kana');
-
-      } else if (currentMode === 'Kana') {
-          // 2. 通常のKanaモードの場合の清音の確定処理
-          if (confirmedCharacter === '濁音符') {
-            onModeChange('Dakuon');
-            setCurrentMode('Dakuon');
-          } else if (confirmedCharacter === '不明') {
-
-          } else {
-            onOutput(confirmedCharacter); 
-          }
-          // Kanaモードの場合は、モード切り替えは不要
-      }
+      return;
     }
 
-    // 確定後、すべての状態をクリア
-    setPendingData(null); 
-    onDisplayUpdate({ character: '', braille: '', dots: [] });
-    //onModeChange('Kana');
-    
-    // キーが離されたため、保留中のタイマーはキャンセル
-    return;
-  }
+    // B. 安定したキー入力があった場合 (stabilizedKeysが更新されたとき)
+    if (stabilizedKeys) {
+      const currentDots = getCurrentDots(stabilizedKeys);
+      const keys = Array.from(stabilizedKeys);
 
-    // -----------------------------------------------------
-    // B. キーが押されている場合（表示更新と待機データ生成）
-    // -----------------------------------------------------
-
-    // 100ms後に実行するタイマーを設定
-    const timer = setTimeout(() => {
-
-      // 1. モード変更キーの判定（濁音符 'k' の単独押下）
-      if (keys.length === 1 && keys[0] === dakuonFuKey) {
-          // 濁音符単独入力の場合
-          const dakuonBraille = hexToBraille(brailleCodes.dakuonFu); // dakuonFuを使用
-          
-          // 内部Stateと外部Propの両方を更新
-          setCurrentMode('Dakuon');
-          onModeChange('Dakuon'); 
-          
-          const displayData: BrailleData = { 
-              character: '濁音符', 
-              braille: dakuonBraille, // 0x10を変換した文字
-              dots: currentDots 
-          };
-          
-          onDisplayUpdate(displayData);
-          setPendingData(displayData);
-          return; 
-      }
+      // モード変更キー（k, lなど）は useBrailleModeManager 側で処理されるため、
+      // ここでは通常の点字入力を処理する。
       
-      // 2. 通常の点字入力判定 (モードが 'Kana' の状態)
-      const characterData = getBrailleData(pressedKeys);
+      const isModeKeyOnly = keys.length === 1 && (keys[0] === 'k' || keys[0] === 'l');
+      
+      if (!isModeKeyOnly) {
+          // 2. 通常の点字入力判定 
+          const characterData = getBrailleData(stabilizedKeys);
 
-      if (characterData !== null) {
-        // マッピングが見つかった場合（「い」など）
-        onDisplayUpdate(characterData);
-        setPendingData(characterData);
+          if (characterData !== null) {
+            onDisplayUpdate(characterData);
+            setPendingData(characterData);
+          } else {
+            // 不明な点字の表示ロジック
+            // ... (既存の不明な点字ロジックをここに移植)
+            let brailleText = '';
+            if (currentDots.length > 0) {
+              brailleText = hexToBraille(dotsToHex(currentDots)); 
+            }
+            
+            const displayData: BrailleData = {
+                character: '不明',
+                braille: brailleText,
+                dots: currentDots,
+            };
+
+            onDisplayUpdate(displayData);
+            setPendingData(displayData);
+          }
       } else {
-        // マッピングが見つからなかった場合（不明な点字）
-        let brailleText = '';
-        if (currentDots.length > 0) {
-          brailleText = hexToBraille(dotsToHex(currentDots)); 
-        }
         
-        const displayData: BrailleData = {
-            character: '不明',
-            braille: brailleText,
-            dots: currentDots,
-        };
-
-        onDisplayUpdate(displayData);
-        setPendingData(displayData);
       }
-
-    }, 100); // 100ミリ秒後に上記のロジックを実行
+    }
     
-    // クリーンアップ関数: pressedKeysが変化するたび（キーが押される/離されるたび）に、
-    // 以前設定したタイマーをキャンセルする（デバウンスの核心）
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [pressedKeys, onOutput, onDisplayUpdate, onModeChange, currentMode, setCurrentMode, pendingData]);
+  }, [isKeysReleased, stabilizedKeys, currentMode, pendingData, onDisplayUpdate, setPendingData, processOutput]);
 
   return { pressedKeys, currentMode };
 }
