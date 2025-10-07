@@ -26,6 +26,8 @@ export interface BrailleContextType {
 export const BrailleContext = createContext<BrailleContextType | null>(null);
 
 // カスタムフックとしてラップし、使いやすくする
+// 1. useContextを各コンポーネントで使用しなくて済む（Context 値の取得をカプセル化する）
+// 2. Provider の使用必須化がチェックできる
 export const useBrailleContext = () => {
   const context = useContext(BrailleContext);
   if (!context) {

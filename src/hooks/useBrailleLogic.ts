@@ -12,7 +12,6 @@ import { useKeyboardListener } from './useKeyboardListener';
 import { useBrailleInputTiming } from './useBrailleInputTiming';
 import { useBrailleModeManager } from './useBrailleModeManager';
 import { useBrailleOutputProcessor } from './useBrailleOutputProcessor';
-import { getCurrentDots, dakuonFuKey } from '../utils/brailleConverter';
 import { dotsToHex } from '../utils/dotsToHex';
 import { hexToBraille } from '../utils/hexToBraille';
 import { getBrailleData } from '../utils/brailleConverter'; // 通常の点字データを取得
@@ -34,8 +33,10 @@ export function useBrailleLogic() {
   const { 
     currentMode, 
     setCurrentMode, 
+
     pendingData, 
     setPendingData, 
+
     onOutput, 
     onDisplayUpdate, 
   } = useBrailleContext();
@@ -65,11 +66,11 @@ export function useBrailleLogic() {
     // A. キーが全て離された場合（確定処理）
     if (isKeysReleased) {
       if (pendingData) {
-        // Processorを呼び出し、確定処理を実行。
+        // 1. 待機データがあれば、確定処理を実行する
         const isModeMaintained = processOutput();
         
-        // 処理の結果、モードが維持された（濁音符単独入力）場合を除き、pendingDataをリセット
-        // 濁音符単独入力時は、processOutput内で pendingData/Display のクリアが完了している
+        // 2. 確定処理後に入力待ちの状態をリセットする
+        // 濁音符入力モードなどではなくなった時に、pendingDataをリセット
         if (!isModeMaintained) {
           setPendingData(null); 
           onDisplayUpdate({ character: '', braille: '', dots: [] });
@@ -86,12 +87,29 @@ export function useBrailleLogic() {
       const currentDots = getCurrentDots(stabilizedKeys);
       const keys = Array.from(stabilizedKeys);
 
-      // モード変更キー（k, lなど）は useBrailleModeManager 側で処理されるため、
-      // ここでは通常の点字入力を処理する。
-      
+      // モードキー単独の判定（kキー or lキー単独押下）
       const isModeKeyOnly = keys.length === 1 && (keys[0] === 'k' || keys[0] === 'l');
       
-      if (!isModeKeyOnly) {
+      if (isModeKeyOnly) {
+          if (keys[0] === dakuonFuKey) { // 'k' キー単独
+            const dakuonBraille = hexToBraille(brailleCodes.dakuonFu); // 濁音符の点字
+            
+            // 1. モードをDakuonに更新（Context経由）
+            setCurrentMode('Dakuon');
+            
+            // 2. 表示データ（pendingData）を「濁音符」として更新（キーを離す前の表示）
+            const displayData: BrailleData = { 
+                character: '濁音符', 
+                braille: dakuonBraille, 
+                dots: currentDots 
+            };
+            
+            onDisplayUpdate(displayData);
+            setPendingData(displayData);
+          }
+          // (lキーなどの半濁音符ロジックもここに追加)
+          return; // モードキー単独の場合はこれ以降の通常点字判定は行わない
+      } else {
           // 2. 通常の点字入力判定 
           const characterData = getBrailleData(stabilizedKeys);
 
@@ -115,19 +133,6 @@ export function useBrailleLogic() {
             onDisplayUpdate(displayData);
             setPendingData(displayData);
           }
-      } else {
-        // モードキー単独入力時、useBrailleModeManager側でモード変更が行われているが、
-        // pendingDataの更新も必要（例: 濁音符の表示）
-        // 実際には useBrailleModeManager 側で pendingData も更新させる方がシンプルだが、
-        // 一旦は modeManager が mode の更新のみを行うと仮定する。
-        // （元のコードの pendingData 更新ロジックは timing 側で処理すべき）
-        // 複雑になるため、ここでは元のコードの B-1 ロジック（pendingData更新）をここに戻すか、
-        // useBrailleModeManager 側に移します。
-        
-        // ★元のコードの B-1 ロジックをここに記述するか、タイミングに含める必要があります。
-        // ここでは、timingフックが安定したキーセットを渡すだけで、モード判定は manager に委ねる方針を維持し、
-        // 濁音符の表示ロジックは modeManager に移すことでシンプルにします。
-        
       }
     }
     
