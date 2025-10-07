@@ -12,7 +12,7 @@ import { useKeyboardListener } from './useKeyboardListener';
 import { useBrailleInputTiming } from './useBrailleInputTiming';
 import { useBrailleModeManager } from './useBrailleModeManager';
 import { useBrailleOutputProcessor } from './useBrailleOutputProcessor';
-import { getCurrentDots, dakuonFuKey, handakuonFuKey } from '../utils/brailleConverter';
+import { getCurrentDots, dakuonFuKey, handakuonFuKey, youonFuKey } from '../utils/brailleConverter';
 import { dotsToHex } from '../utils/dotsToHex';
 import { hexToBraille } from '../utils/hexToBraille';
 import { getBrailleData } from '../utils/brailleConverter'; // 通常の点字データを取得
@@ -89,45 +89,67 @@ export function useBrailleLogic() {
       const keys = Array.from(stabilizedKeys);
 
       // モードキー単独の判定（kキー or lキー単独押下）
-      const isModeKeyOnly = keys.length === 1 && (keys[0] === 'k' || keys[0] === 'l');
-      
-      if (isModeKeyOnly) {
-          if (keys[0] === dakuonFuKey) { // 'k' キー単独
-            const dakuonBraille = hexToBraille(brailleCodes.dakuonFu); // 濁音符の点字
-            
-            // 1. モードをDakuonに更新（Context経由）
-            setCurrentMode('Dakuon');
-            
-            // 2. 表示データ（pendingData）を「濁音符」として更新（キーを離す前の表示）
-            const displayData: BrailleData = { 
-                character: '濁音符', 
-                braille: dakuonBraille, 
-                dots: currentDots 
-            };
-            
-            onDisplayUpdate(displayData);
-            setPendingData(displayData);
-          } 
-          // (lキーなどの半濁音符ロジックもここに追加)
-          else if (keys[0] === handakuonFuKey) { // 'l' キー単独
-            const handakuonBraille = hexToBraille(brailleCodes.handakuonFu); // 濁音符の点字
-            
-            // 1. モードをDakuonに更新（Context経由）
-            setCurrentMode('Handakuon');
-            
-            // 2. 表示データ（pendingData）を「濁音符」として更新（キーを離す前の表示）
-            const displayData: BrailleData = { 
-                character: '半濁音符', 
-                braille: handakuonBraille, 
-                dots: currentDots 
-            };
-            
-            onDisplayUpdate(displayData);
-            setPendingData(displayData);
-          }
+      // const isModeKeyOnly = keys.length === 1 && (keys[0] === 'k' || keys[0] === 'l');
 
-          return; // モードキー単独の場合はこれ以降の通常点字判定は行わない
-      } else {
+      const isDakuonOnly = keys.length === 1 && keys[0] === dakuonFuKey;     // k単独
+      const isHandakuonOnly = keys.length === 1 && keys[0] === handakuonFuKey; // l単独
+      
+      const isYouonOnly = keys.length === 1 && keys[0] === youonFuKey;         // j単独 (拗音)
+      const isYouDakuon = keys.length === 2 && keys.includes(youonFuKey) && keys.includes(dakuonFuKey); // j + k (拗濁音)
+      const isYouHandakuon = keys.length === 2 && keys.includes(youonFuKey) && keys.includes(handakuonFuKey); // j + l (拗半濁音)
+
+      if (isDakuonOnly) { 
+        // 濁音 ('k' 単独)
+        const braille = hexToBraille(brailleCodes.dakuonFu);
+        setCurrentMode('Dakuon'); // 1. モードを更新（Context経由）
+        onDisplayUpdate({ character: '濁音符', braille, dots: currentDots });
+        setPendingData({ character: '濁音符', braille, dots: currentDots });
+        return; 
+      } 
+      else if (isHandakuonOnly) {
+        // 半濁音 ('l' 単独)
+        const braille = hexToBraille(brailleCodes.handakuonFu);
+        setCurrentMode('Handakuon');
+        onDisplayUpdate({ character: '半濁音符', braille, dots: currentDots });
+        setPendingData({ character: '半濁音符', braille, dots: currentDots });
+        return;
+      }
+       else if (isYouonOnly || isYouDakuon || isYouHandakuon) {
+        // ★★★ 拗音系モードの処理（修正部分） ★★★
+        let mode: InputMode;
+        let char: string; // 表示用文字（'拗音符', '拗濁音符'など）
+        let code: number; // 表示に使う点字コード
+
+        if (isYouonOnly) {
+          mode = 'Youon';
+          char = '拗音符';
+          code = brailleCodes.youonFu; // 点4
+        } else if (isYouDakuon) {
+          mode = 'YouDakuon';
+          // ★修正: 表示文字を「拗濁音符」に設定
+          char = '拗濁音符'; 
+          // 拗濁音符は「点4 + 点5」の複合点字だが、ここでは単一の点字コード表示で代表させる
+          // (表示上は点4, 5を押している状態を反映すれば十分)
+          code = brailleCodes.youonFu; // 代表として点4（拗音符）
+        } else { // isYouHandakuon
+          mode = 'YouHandakuon';
+          // ★修正: 表示文字を「拗半濁音符」に設定
+          char = '拗半濁音符';
+          // 拗半濁音符は「点4 + 点6」の複合点字だが、ここでは代表として点4（拗音符）
+          code = brailleCodes.youonFu; 
+        }
+        
+        const braille = hexToBraille(code);
+        setCurrentMode(mode);
+        const displayData = { character: char, braille, dots: currentDots }; // charには「拗濁音符」などが入る
+
+        onDisplayUpdate(displayData);
+        setPendingData(displayData);
+        return;
+      } 
+
+
+        else {
           // 2. 通常の点字入力判定 
           const characterData = getBrailleData(stabilizedKeys);
 

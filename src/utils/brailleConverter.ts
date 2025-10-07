@@ -30,6 +30,9 @@ export const dakuonFuKey = dotToKeyMap[5];
 /** 半濁音符 (0x20) の点6に対応するキー 'l' を取得 */
 export const handakuonFuKey = dotToKeyMap[6]; 
 
+/** 拗音符 (0x08) の点4に対応するキー 'j' を取得 */
+export const youonFuKey = dotToKeyMap[4]; 
+
 function arraysEqual(a: number[], b: number[]): boolean {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) {

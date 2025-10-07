@@ -23,14 +23,21 @@ export function useBrailleOutputProcessor(
     // --- 1. モード維持の最優先チェック ---
     const isModeKeyOnly = 
         (currentMode === 'Dakuon' && confirmedCharacter === '濁音符') ||
-        (currentMode === 'Handakuon' && confirmedCharacter === '半濁音符');
+        (currentMode === 'Handakuon' && confirmedCharacter === '半濁音符') ||
+        (currentMode === 'Youon' && confirmedCharacter === '拗音符') ||
+        (currentMode === 'YouDakuon' && confirmedCharacter === '拗濁音符') ||
+        (currentMode === 'YouHandakuon' && confirmedCharacter === '拗半濁音符');
 
     if (isModeKeyOnly) {
         return true; // モードを維持
     }
 
     // --- 2. 待機モードの処理 ---
-    if (currentMode === 'Dakuon' || currentMode === 'Handakuon') {
+    const isWaitingMode = currentMode === 'Dakuon' || currentMode === 'Handakuon' ||
+                        currentMode === 'Youon' || currentMode === 'YouDakuon' ||
+                        currentMode === 'YouHandakuon';
+
+    if (isWaitingMode) {
         // モード符自体ではない確定文字が入力された場合
         if (confirmedCharacter !== '濁音符' && confirmedCharacter !== '半濁音符') {
             
