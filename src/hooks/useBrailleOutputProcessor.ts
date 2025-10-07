@@ -1,5 +1,19 @@
+// 1. コアライブラリ
+import { useCallback } from 'react';
+
+// 2. 型定義 (Type Imports)
 import type { BrailleData, InputMode } from '../data/types';
+
+// 3. サードパーティライブラリ (※ 無し)
+
+// 4. プロジェクト内のモジュール / エイリアスパス
+
+// 5. 相対パスによるインポート
 import { getConvertedCharacter } from '../utils/modeLogic'; 
+
+// 6. スタイルシート / アセット
+
+
 /**
  * キー解放時に入力された文字を確定し、モードに基づいて変換・出力する
  * @param pendingData 安定した入力で表示されたBrailleData
@@ -14,21 +28,21 @@ export function useBrailleOutputProcessor(
   onOutput: (char: string) => void,
   setMode: (newMode: InputMode) => void,
 ) {
-  // useEffect やカスタムフックではないが、ロジックをカプセル化するための関数として定義
 
-  const processOutput = () => {
+  // pendingData, currentMode, onOutput, setModeが変更された時のみ再生成
+  const processOutput = useCallback(() => {
     if (!pendingData) return false;
     const confirmedCharacter = pendingData.character;
     
     // --- 1. モード維持の最優先チェック ---
-    const isModeKeyOnly = 
+    const isModeMaintained = 
         (currentMode === 'Dakuon' && confirmedCharacter === '濁音符') ||
         (currentMode === 'Handakuon' && confirmedCharacter === '半濁音符') ||
         (currentMode === 'Youon' && confirmedCharacter === '拗音符') ||
         (currentMode === 'YouDakuon' && confirmedCharacter === '拗濁音符') ||
         (currentMode === 'YouHandakuon' && confirmedCharacter === '拗半濁音符');
 
-    if (isModeKeyOnly) {
+    if (isModeMaintained) {
         return true; // モードを維持
     }
 
@@ -55,19 +69,35 @@ export function useBrailleOutputProcessor(
 
     // --- 3. Kanaモードの処理 ---
     else if (currentMode === 'Kana') {
+        let nextMode: InputMode | null = null;
+        
+        // 確定された文字がモード符であるかを判定し、次のモードを決定
         if (confirmedCharacter === '濁音符') {
-            // Kanaモード中に濁音キーを離した場合 -> Dakuonモードへ移行
-            setMode('Dakuon');
+            nextMode = 'Dakuon';
+        } else if (confirmedCharacter === '半濁音符') {
+            nextMode = 'Handakuon';
+        } else if (confirmedCharacter === '拗音符') {
+            nextMode = 'Youon';
+        } else if (confirmedCharacter === '拗濁音符') {
+            nextMode = 'YouDakuon';
+        } else if (confirmedCharacter === '拗半濁音符') {
+            nextMode = 'YouHandakuon';
+        }
+
+        if (nextMode !== null) {
+            // モード符が入力された場合、待機モードへ移行
+            setMode(nextMode);
             return false; // モードが変更されたことを示す
-        } 
-        // 半濁音待機への移行もここに追加
-        // ...
+        }
+        
+        // モード符ではなく、清音または不明な点字の場合
         else if (confirmedCharacter !== '不明') {
             onOutput(confirmedCharacter); // 清音の確定
         }
     }
+
     return false; // モードは変更されなかった
-  };
+  }, [pendingData, currentMode, onOutput, setMode]);
 
   return { processOutput };
 }

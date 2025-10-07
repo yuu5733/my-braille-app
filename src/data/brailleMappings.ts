@@ -18,13 +18,13 @@ import { hiraganaTable, hiraganaKigouTable, numberTable, alphabetTable } from '.
 // 前置符のキーとモードのマッピングの定義
 // ----------------------------------------------------------------------
 // 濁音符（点5）
-export const dakuonFuKey = 'k';
+// export const dakuonFuKey = 'k';
 
 // 半濁音符（点6）
-export const handakuonFuKey = 'l'; 
+// export const handakuonFuKey = 'l'; 
 
 // 拗音符（点4）
-export const youonFuKey = 'j';
+// export const youonFuKey = 'j';
 
 
 // export const brailleMappings: BrailleMapping[] = [

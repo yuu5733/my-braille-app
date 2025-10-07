@@ -1,14 +1,11 @@
 // 1. コアライブラリ
-import React from 'react';
 
 // 2. 型定義 (Type Imports)
 import type { FC } from 'react';
-import type { BrailleData, InputMode } from '../data/types';
 
 // 3. サードパーティライブラリ (※ 無し)
 
 // 4. プロジェクト内のモジュール / エイリアスパス
-import { useBrailleInput } from '../hooks/useBrailleInput'; 
 
 // 5. 相対パスによるインポート
 import FingerButton from './FingerButton';
