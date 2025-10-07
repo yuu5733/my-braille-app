@@ -221,7 +221,7 @@ export const numberTable: { [key: string]: number } = {
   "0": 0x1a,
   // 小数点
   ".": 0x02,
-  // コンマ（位取り点）
+  // 位取り点（コンマ）、アポストロフィー
   ",": 0x04
 };
 
