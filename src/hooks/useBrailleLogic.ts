@@ -114,6 +114,7 @@ export function useBrailleLogic() {
       // モードキー共通のデータ格納変数
       let modeData: { mode: InputMode; char: string; code: number } | null = null;
       
+      // memo: "Kana" | "Suuji" | "Alphabet" | "Dakuon" | "Handakuon" | "Youon" | "YouDakuon" | "YouHandakuon" | "GouYouon"
       if (isDakuonOnly) { 
         // 濁音符 (kキー)
         modeData = { mode: 'Dakuon', char: '濁音符', code: brailleCodes.dakuonFu };
