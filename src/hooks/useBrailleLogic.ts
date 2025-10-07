@@ -42,6 +42,9 @@ export function useBrailleLogic() {
 
     onOutput, 
     onDisplayUpdate, 
+
+    character, 
+    dots,   
   } = useBrailleContext();
 
   // 2. タイミング処理 (デバウンス)
@@ -79,8 +82,10 @@ export function useBrailleLogic() {
           onDisplayUpdate({ character: '', braille: '', dots: [] });
         }
       } else {
-        // pendingDataがない状態でキーが離された場合も表示をクリア
-        onDisplayUpdate({ character: '', braille: '', dots: [] });
+        // 無限ループ防止のため、表示がすでにクリアな場合は更新しない
+        if (character !== '' || dots.length > 0) {
+            onDisplayUpdate({ character: '', braille: '', dots: [] });
+        }
       }
       return;
     }
@@ -135,12 +140,29 @@ export function useBrailleLogic() {
         const { mode, char, code } = modeData; // データを取り出し
         
         const braille = hexToBraille(code);
-        setCurrentMode(mode);
         const displayData = { character: char, braille, dots: currentDots };
 
+        // 1. currentModeが既に同じか
+        const isModeSame = currentMode === mode;
+
+        // 2. pendingDataの内容が機能的に同じか (オブジェクト参照が変わるpendingDataがキー)
+        // pendingData.dots と currentDots は配列なので、JSON.stringifyで内容を比較
+        const isPendingDataSame = 
+            pendingData !== null && 
+            pendingData.character === char && 
+            // braille (点字記号) の比較はスキップし、dotsの内容が同じかチェックすることで十分
+            JSON.stringify(pendingData.dots) === JSON.stringify(currentDots);
+            
+        // 現在の状態と設定しようとしている状態がすべて同じであれば、更新をスキップしてループを防止
+        if (isModeSame && isPendingDataSame) {
+            return; 
+        }
+
+        // 状態が異なる場合のみ更新
+        setCurrentMode(mode);
         onDisplayUpdate(displayData);
-        setPendingData(displayData);
-        return; // モードキー処理が完了したため、以降の処理をスキップ
+        setPendingData(displayData); // ここで新しいオブジェクトが渡されるが、次回は上記チェックで回避
+        return;
       }
 
       // 2. 通常の点字入力判定 
@@ -170,7 +192,15 @@ export function useBrailleLogic() {
       }
     }
     
-  }, [isKeysReleased, stabilizedKeys, currentMode, pendingData, onDisplayUpdate, setPendingData, processOutput]);
+  }, [isKeysReleased, 
+    stabilizedKeys, 
+    currentMode, 
+    pendingData, 
+    onDisplayUpdate, 
+    setPendingData, 
+    processOutput,
+    character, 
+    dots]);
 
   return { pressedKeys, currentMode };
 }
