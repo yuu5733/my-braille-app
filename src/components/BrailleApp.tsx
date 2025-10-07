@@ -58,11 +58,23 @@ const BrailleApp: FC = () => {
     const [outputString, setOutputString] = useState('');
     
     // ロジック定義
-    const handleOutput = useCallback((char: string) => {
-        if (char !== '濁音符' && char !== '不明') {
-            setOutputString(prev => prev + char);
-        }
-    }, []);
+const handleOutput = useCallback((char: string) => {
+    // ★ 確定文字列に追加すべきではない、全てのモード符と '不明' を除外する
+    if (
+        char !== '不明' &&
+        char !== '濁音符' &&
+        char !== '半濁音符' &&
+        char !== '拗音符' &&
+        char !== '拗濁音符' &&
+        char !== '拗半濁音符' &&
+        char !== '数符' &&
+        char !== 'つなぎ符' &&
+        char !== '外字符' &&
+        char !== '大文字符'
+    ) {
+        setOutputString(prev => prev + char);
+    }
+}, []);
     
     const handleDisplayUpdate = useCallback((data: BrailleData) => {
         setCharacter(data.character);
