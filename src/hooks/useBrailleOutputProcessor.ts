@@ -6,16 +6,14 @@ import { dakuonMap } from '../data/table'; // 濁音マッピングテーブル�
  * @param pendingData 安定した入力で表示されたBrailleData
  * @param currentMode 現在のロジックモード
  * @param onOutput 確定文字出力関数
- * @param onModeChange 外部モード変更関数
- * @param setCurrentMode 内部モードState更新関数
+ * @param setMode 内部モードState更新関数
  * @returns { boolean } モードが維持されたかどうか
  */
 export function useBrailleOutputProcessor(
   pendingData: BrailleData | null,
   currentMode: InputMode,
   onOutput: (char: string) => void,
-  onModeChange: (newMode: InputMode) => void,
-  setCurrentMode: (newMode: InputMode) => void,
+  setMode: (newMode: InputMode) => void,
 ) {
   // useEffect やカスタムフックではないが、ロジックをカプセル化するための関数として定義
 
@@ -41,8 +39,7 @@ export function useBrailleOutputProcessor(
             }
         }
         // モードをリセット
-        onModeChange('Kana');
-        setCurrentMode('Kana');
+        setMode('Kana');
         return false; // モードが変更されたことを示す
     } 
     
@@ -50,8 +47,7 @@ export function useBrailleOutputProcessor(
     else if (currentMode === 'Kana') {
         if (confirmedCharacter === '濁音符') {
             // Kanaモード中に濁音キーを離した場合 -> Dakuonモードへ移行
-            onModeChange('Dakuon');
-            setCurrentMode('Dakuon');
+            setMode('Dakuon');
             return false; // モードが変更されたことを示す
         } 
         // 半濁音待機への移行もここに追加

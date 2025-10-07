@@ -1,13 +1,15 @@
 // 1. コアライブラリ
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
 // 2. 型定義 (Type Imports)
 import type { FC } from 'react';
 import type { BrailleData, InputMode } from '../data/types';
+import type { BrailleContextType } from '../contexts/BrailleContext';
 
 // 3. サードパーティライブラリ (※ 無し)
 
 // 4. プロジェクト内のモジュール / エイリアスパス
+import { BrailleContext, useBrailleContext } from '../contexts/BrailleContext'; 
 import { useBrailleLogic } from '../hooks/useBrailleLogic';
 import BrailleInput from "./BrailleInput";
 import ResultDisplay from "./ResultDisplay";
@@ -17,39 +19,13 @@ import ModeDisplay from './ModeDisplay';
 
 // 6. スタイルシート / アセット
 
-const BrailleApp: FC = () => {
-  const [character, setCharacter] = useState('');
-  const [braille, setBraille] = useState('');
-  const [dots, setDots] = useState<number[]>([]);
-  // outputString: 確定した文字を保持するState
-  const [outputString, setOutputString] = useState(''); 
-  const [currentMode, setCurrentMode] = useState<InputMode>('Kana');
-  //const [pendingData, setPendingData] = useState<BrailleData | null>(null);
+// -----------------------------------------------------
+// ★ 内部コンポーネント (Contextの消費者) を定義
+// -----------------------------------------------------
+const BrailleAppContent: FC = () => {
+  const { currentMode, character, braille, dots, outputString } = useBrailleContext();
 
-
-  // onCharacterConfirmを更新して、ひらがな、点字、数字データを受け取る
-  // useCallbackで関数をメモ化し、再レンダリング時に新しく生成されないようにする
-  // useStateの更新関数（setCharacter, setBraille, setDots）が安定しているので、依存配列はなし
-  const handleDisplayUpdate = useCallback((data: BrailleData) => {
-    setCharacter(data.character);
-    setBraille(data.braille);
-    setDots(data.dots);
-  }, []);
-
-  // 確定文字を追加するロジック
-  const handleOutput = useCallback((char: string) => {
-    // 濁音符が確定した場合は文字列に追加しない（後で適切なロジックを実装）
-    // 現時点では、'濁音符'が確定したら追加しないロジックを追加
-    if (char !== '濁音符' && char !== '不明') {
-      setOutputString(prev => prev + char);
-    }
-  }, []);
-
-  const { pressedKeys } = useBrailleLogic({
-    onOutput: handleOutput,
-    onDisplayUpdate: handleDisplayUpdate,
-    onModeChange: setCurrentMode,
-  });
+  const { pressedKeys } = useBrailleLogic();
 
   return (
     <>
@@ -65,6 +41,53 @@ const BrailleApp: FC = () => {
       <ResultDisplay text={character} brailleText={braille} dots={dots} />
     </>
   );
+};
+
+// -----------------------------------------------------
+// ★ BrailleAppがProviderの役割を果たす (State管理をここに移植)
+// -----------------------------------------------------
+const BrailleApp: FC = () => {
+    const [currentMode, setCurrentMode] = useState<InputMode>('Kana');
+
+    const [pendingData, setPendingData] = useState<BrailleData | null>(null);
+
+    const [character, setCharacter] = useState('');
+    const [braille, setBraille] = useState('');
+    const [dots, setDots] = useState<number[]>([]);
+
+    const [outputString, setOutputString] = useState('');
+    
+    // ロジック定義
+    const handleOutput = useCallback((char: string) => {
+        if (char !== '濁音符' && char !== '不明') {
+            setOutputString(prev => prev + char);
+        }
+    }, []);
+    
+    const handleDisplayUpdate = useCallback((data: BrailleData) => {
+        setCharacter(data.character);
+        setBraille(data.braille);
+        setDots(data.dots);
+    }, []);
+
+    // ContextValueはuseMemoで安定させる
+    const contextValue: BrailleContextType = useMemo(() => ({
+        currentMode, setCurrentMode,
+        pendingData, setPendingData,
+        onOutput: handleOutput, 
+        onDisplayUpdate: handleDisplayUpdate,
+        character,   // ResultDisplay表示用（非必須だが便利）
+        braille,     // ResultDisplay表示用
+        dots,        // ResultDisplay表示用
+        outputString,// ResultDisplay表示用
+    }), [currentMode, pendingData, handleOutput, handleDisplayUpdate, character, braille, dots, outputString]);
+
+    // Providerとして自分自身をラップし、コンテンツコンポーネントを描画
+    return (
+        <BrailleContext.Provider value={contextValue}>
+            <BrailleAppContent />
+        </BrailleContext.Provider>
+    );
 };
 
 export default BrailleApp;

@@ -7,6 +7,7 @@ import type { BrailleData, InputMode } from '../data/types';
 // 3. サードパーティライブラリ (※ 無し)
 
 // 4. プロジェクト内のモジュール / エイリアスパス
+import { useBrailleContext } from '../contexts/BrailleContext';
 import { useKeyboardListener } from './useKeyboardListener';
 import { useBrailleInputTiming } from './useBrailleInputTiming';
 import { useBrailleModeManager } from './useBrailleModeManager';
@@ -26,33 +27,35 @@ const keyToDotMap: { [key: string]: number } = {
   'j': 4, 'k': 5, 'l': 6
 };
 
-interface UseBrailleLogicProps {
-  onOutput: (char: string) => void; // 確定した文字をアプリに追加する関数
-  onDisplayUpdate: (data: BrailleData) => void; // 現在の押下状態を表示に反映する関数
-  onModeChange: (newMode: InputMode) => void; // ModeDisplayを更新する関数
-}
-
-export function useBrailleLogic({ onOutput, onDisplayUpdate, onModeChange }: UseBrailleLogicProps) {
+export function useBrailleLogic() {
   // 1. キー入力の監視
   const pressedKeys = useKeyboardListener(); 
-  
+
+  const { 
+    currentMode, 
+    setCurrentMode, 
+    pendingData, 
+    setPendingData, 
+    onOutput, 
+    onDisplayUpdate, 
+  } = useBrailleContext();
+
   // 2. タイミング処理 (デバウンス)
   const { stabilizedKeys, isKeysReleased } = useBrailleInputTiming(pressedKeys); // ★ NEW
   
   // 3. モード管理
   // stabilizedKeysが更新されると、モード変更キーの判定（kキー単独押下）が実行される
-  const { currentMode, setCurrentMode } = useBrailleModeManager(stabilizedKeys, onModeChange); // ★ NEW
+  // currentMode, setCurrentModeでuseContextから取り出す
 
   // 4. 待機データ
-  const [pendingData, setPendingData] = useState<BrailleData | null>(null);
+  // pendingData, setPendingDataから取り出す
 
   // 5. 確定ロジック (Processorの初期化)
   const { processOutput } = useBrailleOutputProcessor(
     pendingData,
     currentMode,
     onOutput,
-    onModeChange,
-    setCurrentMode
+    setCurrentMode,
   );
 
   // -----------------------------------------------------
@@ -113,6 +116,17 @@ export function useBrailleLogic({ onOutput, onDisplayUpdate, onModeChange }: Use
             setPendingData(displayData);
           }
       } else {
+        // モードキー単独入力時、useBrailleModeManager側でモード変更が行われているが、
+        // pendingDataの更新も必要（例: 濁音符の表示）
+        // 実際には useBrailleModeManager 側で pendingData も更新させる方がシンプルだが、
+        // 一旦は modeManager が mode の更新のみを行うと仮定する。
+        // （元のコードの pendingData 更新ロジックは timing 側で処理すべき）
+        // 複雑になるため、ここでは元のコードの B-1 ロジック（pendingData更新）をここに戻すか、
+        // useBrailleModeManager 側に移します。
+        
+        // ★元のコードの B-1 ロジックをここに記述するか、タイミングに含める必要があります。
+        // ここでは、timingフックが安定したキーセットを渡すだけで、モード判定は manager に委ねる方針を維持し、
+        // 濁音符の表示ロジックは modeManager に移すことでシンプルにします。
         
       }
     }
