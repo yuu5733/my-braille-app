@@ -1,6 +1,5 @@
 import type { BrailleData, InputMode } from '../data/types';
-import { dakuonMap, handakuonMap } from '../data/table'; // 濁音マッピングテーブルをインポート
-
+import { getConvertedCharacter } from '../utils/modeLogic'; 
 /**
  * キー解放時に入力された文字を確定し、モードに基づいて変換・出力する
  * @param pendingData 安定した入力で表示されたBrailleData
@@ -21,27 +20,25 @@ export function useBrailleOutputProcessor(
     if (!pendingData) return false;
     const confirmedCharacter = pendingData.character;
     
-    // --- A-1. 濁音モード維持の最優先チェック ---
-    // Dakuonキーを押して離したが、まだ次の入力がない場合
-    if (currentMode === 'Dakuon' && confirmedCharacter === '濁音符') {
-        // モードを維持するために何もせず、リセット処理もスキップ
-        return true; // モードが維持されたことを示す
+    // --- 1. モード維持の最優先チェック ---
+    const isModeKeyOnly = 
+        (currentMode === 'Dakuon' && confirmedCharacter === '濁音符') ||
+        (currentMode === 'Handakuon' && confirmedCharacter === '半濁音符');
+
+    if (isModeKeyOnly) {
+        return true; // モードを維持
     }
 
-    // --- B-1. 半濁音モード維持の最優先チェック
-    // Handakuonキーを押して離したが、まだ次の入力がない場合
-    if (currentMode === 'Handakuon' && confirmedCharacter === '半濁音符') {
-      return true;
-    }
-
-    // --- A-2. 濁音待機モードの処理 ---
-    if (currentMode === 'Dakuon') {
-        if (confirmedCharacter !== '濁音符') {
-            const dakuonChar = dakuonMap[confirmedCharacter];
-            if (dakuonChar) {
-                onOutput(dakuonChar); // 濁音化成功
-            } else if (confirmedCharacter !== '不明') {
-                onOutput(confirmedCharacter); // 濁音化失敗、清音を出力（設定による）
+    // --- 2. 待機モードの処理 ---
+    if (currentMode === 'Dakuon' || currentMode === 'Handakuon') {
+        // モード符自体ではない確定文字が入力された場合
+        if (confirmedCharacter !== '濁音符' && confirmedCharacter !== '半濁音符') {
+            
+            // 変換ロジックはユーティリティ関数に一任
+            const convertedChar = getConvertedCharacter(currentMode, confirmedCharacter);
+            
+            if (convertedChar !== '不明') {
+                onOutput(convertedChar);
             }
         }
         // モードをリセット
@@ -49,21 +46,7 @@ export function useBrailleOutputProcessor(
         return false; // モードが変更されたことを示す
     } 
 
-    // B-2. 半濁音待機モードの処理
-    else if (currentMode === 'Handakuon') {
-        if (confirmedCharacter !== '半濁音符') {
-            const handakuonChar = handakuonMap[confirmedCharacter];
-            if (handakuonChar) {
-              onOutput(handakuonChar); // 半濁音化成功
-            } else if (confirmedCharacter !== '不明') {
-              onOutput(confirmedCharacter); // 半濁音化失敗、清音を出力
-            }
-        }
-        setMode('Kana');
-        return false;
-    }
-
-    // --- X. Kanaモードの処理 ---
+    // --- 3. Kanaモードの処理 ---
     else if (currentMode === 'Kana') {
         if (confirmedCharacter === '濁音符') {
             // Kanaモード中に濁音キーを離した場合 -> Dakuonモードへ移行

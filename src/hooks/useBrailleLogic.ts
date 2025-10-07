@@ -20,7 +20,7 @@ import { getBrailleData } from '../utils/brailleConverter'; // 通常の点字�
 // 5. 相対パスによるインポート
 
 // 6. スタイルシート / アセット
-import { brailleCodes, dakuonMap, handakuonMap } from '../data/table'; 
+import { brailleCodes } from '../data/table'; 
 
 const keyToDotMap: { [key: string]: number } = {
   'f': 1, 'd': 2, 's': 3,
