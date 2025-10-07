@@ -12,7 +12,8 @@ import { useKeyboardListener } from './useKeyboardListener';
 import { useBrailleInputTiming } from './useBrailleInputTiming';
 import { useBrailleModeManager } from './useBrailleModeManager';
 import { useBrailleOutputProcessor } from './useBrailleOutputProcessor';
-import { getCurrentDots, dakuonFuKey, handakuonFuKey, youonFuKey } from '../utils/brailleConverter';
+import { getCurrentDots } from '../utils/brailleConverter';
+import { dakuonFuKey, handakuonFuKey, youonFuKey } from '../data/brailleMappings';
 import { dotsToHex } from '../utils/dotsToHex';
 import { hexToBraille } from '../utils/hexToBraille';
 import { getBrailleData } from '../utils/brailleConverter'; // 通常の点字データを取得
