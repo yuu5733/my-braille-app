@@ -1,37 +1,22 @@
-import { hiraganaTable, hiraganaKigouTable, numberTable, alphabetTable } from './table';
-import { hexToDots } from '../utils/hexToDots';
-import { hexToBraille } from '../utils/hexToBraille';
+// 1. コアライブラリ (※ 無し)
+
+// 2. 型定義 (Type Imports)
 import type { BrailleMapping } from './types';
 
-export const brailleCodes = {
-  // 濁音符　例）ぎ。中黒と同じ。
-  dakuon_fu: [5],
-  // 半濁音符　例）ぴ
-  handakuon_fu: [6],
-  // 拗音符　例）きゃ
-  youon_fu: [4],
-  // 拗濁音符　例）ぎゃ
-  youdakuon_fu: [4,5],
-  // 拗半濁音符　例）ぴゃ
-  youhandakuon_fu: [4,6],
-  // 数符
-  su_fu: [3, 4, 5, 6],
-  // つなぎ符
-  // (1)数字にあ行、またはら行が続く時に使用する
-  // (2)語中で英語→日本語と変化する場合（A型、X線、Gift券、など）。その間につなぎ符を使用
-  tsunagi_fu: [3, 6],
-  // 外字符。読点と同じ
-  gaiji_fu: [5, 6],
-  // 外字引用符	
-  // 点字で外国語の単語や文を表記する際に、単語の区切りを示すために使用される記号
-  gaijiinyo_fu_kaishi: [2, 3, 6],
-  gaijiinyo_fu_owari: [3, 5, 6],
-  // 大文字符
-  ohmoji_fu: [6],
-  // 二重大文字符（アルファベットの全部が大文字であることを示す）
-  // 大文字符を2回繰り返す
-};
+// 3. サードパーティライブラリ (※ 無し)
 
+// 4. プロジェクト内のモジュール / エイリアスパス
+import { hexToDots } from '../utils/hexToDots';
+import { hexToBraille } from '../utils/hexToBraille';
+
+// 5. 相対パスによるインポート (※ 無し)
+
+// 6. スタイルシート / アセット
+import { hiraganaTable, hiraganaKigouTable, numberTable, alphabetTable } from './table';
+
+// ----------------------------------------------------------------------
+// 前置符のキーとモードのマッピングの定義
+// ----------------------------------------------------------------------
 // export const brailleMappings: BrailleMapping[] = [
 //   { character: 'あ', dots: [1] },
 //   { character: 'い', dots: [1, 2] },

@@ -1,10 +1,27 @@
-import { brailleMappings } from '../data/brailleMappings';
+// 1. コアライブラリ (※ 無し)
+
+// 2. 型定義 (Type Imports)
 import type { BrailleMapping } from '../data/types';
+
+// 3. サードパーティライブラリ (※ 無し)
+// 4. プロジェクト内のモジュール / エイリアスパス (※ 無し)
+// 5. 相対パスによるインポート (※ 無し)
+import { dotsToHex } from './dotsToHex';
+
+// 6. スタイルシート / アセット
+import { brailleMappings } from '../data/brailleMappings';
+import { brailleCodes } from '../data/table';
 
 // キーと点字の点の対応マップ
 const keyToDotMap: { [key: string]: number } = {
   'f': 1, 'd': 2, 's': 3,
   'j': 4, 'k': 5, 'l': 6
+};
+
+// 点の番号 -> キーボードのキー への逆マッピング
+const dotToKeyMap: { [key: number]: string } = {
+    1: 'f', 2: 'd', 3: 's',
+    4: 'j', 5: 'k', 6: 'l'
 };
 
 function arraysEqual(a: number[], b: number[]): boolean {
@@ -44,4 +61,26 @@ export function getCurrentDots(pressedKeys: Set<string>): number[] {
     .map(key => keyToDotMap[key])
     .filter((dot): dot is number => dot !== undefined) // 点に対応しないキーは除外
     .sort((a, b) => a - b);
+}
+
+/**
+ * 押されているキーのセットが、指定された点字コード（Hex値）と一致するかを判定する。
+ * これにより、数符や外字符などの複雑なコードの判定ロジックが簡素化されます。
+ * * @param pressedKeys 現在押されているキーのSet
+ * @param targetHex 比較対象の点字コード（Hex値、例: brailleCodes.suuFu）
+ * @returns 一致すれば true
+ */
+export function isBrailleCodeMatch(pressedKeys: Set<string>, targetHex: number): boolean {
+    // 1. 押されているキーから現在の点の配列を取得
+    const currentDots = getCurrentDots(pressedKeys);
+    
+    if (currentDots.length === 0) {
+        return false;
+    }
+    
+    // 2. 点の配列をHex値に変換 (この関数がソートを担保していることが重要)
+    const currentHex = dotsToHex(currentDots);
+    
+    // 3. 目的のHex値と比較
+    return currentHex === targetHex;
 }

@@ -1,105 +1,23 @@
-import React, { useState, useEffect } from 'react';
+// 1. コアライブラリ
+
+// 2. 型定義 (Type Imports)
 import type { FC } from 'react';
+
+// 3. サードパーティライブラリ (※ 無し)
+
+// 4. プロジェクト内のモジュール / エイリアスパス
+
+// 5. 相対パスによるインポート
 import FingerButton from './FingerButton';
-import { brailleMappings, brailleCodes } from '../data/brailleMappings';
-import type { FingerStates, BrailleCode } from '../data/types';
-import { getBrailleData, getCurrentDots } from '../utils/brailleConverter';
-import { dotsToHex } from '../utils/dotsToHex';
-import { hexToBraille } from '../utils/hexToBraille';
+
+// 6. スタイルシート / アセット
 import '../styles/brailleInput.css';
-import type { BrailleData } from '../data/types';
 
 interface BrailleInputProps {
-  onConfirm: (data: BrailleData) => void;
+  pressedKeys: Set<string>; 
 }
 
-// インデックスシグネチャ（キーが文字列型で、その値が数値型であるオブジェクト）
-const keyToDotMap: { [key: string]: number } = {
-  'f': 1, 'd': 2, 's': 3,
-  'j': 4, 'k': 5, 'l': 6
-};
-
-const BrailleInput: FC<BrailleInputProps> = ({ onConfirm }) => {
-  // 初期値として、空の Set オブジェクト（String型）を設定。String型の配列にするより便利
-  // 重複を許容しないのと、要素の存在チェック (.has()) や削除 (.delete()) が簡単にできるため
-  const [pressedKeys, setPressedKeys] = useState(new Set<string>());
-
-  // 数符などのために、最後に入力された点字コードを保存する
-  // const [lastCode, setLastCode] = useState<BrailleCode | null>(null);
-
- useEffect(() => {
-  const handleKeyDown = (event: KeyboardEvent) => {
-    // 指点字として設定しているキーが押されたとき
-    // 同じキーを繰り返し押す場合に何度も登録されないように、すでに押されているキーは無視
-    if (keyToDotMap[event.key] && !pressedKeys.has(event.key)) {
-      // 新しいSetインスタンスを作成してStateを更新。配列の時に[...prev]として新しい配列を作成するのと同様
-      setPressedKeys(prev => new Set(prev).add(event.key));
-    }
-  };
-
-  // キーボードのキーが離された瞬間に実行されるイベントハンドラー
-  const handleKeyUp = (event: KeyboardEvent) => {
-    // 押されたキーが、指点字のキーマップ（f, d, s, j, k, l）の中に存在する場合
-    // （アルファベットに対応する数字があるかどうか）
-    if (keyToDotMap[event.key]) {
-      // StateのSetから離されたキーを削除（数字ではなく、キーボードの文字で管理）
-      setPressedKeys(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(event.key);
-        return newSet;
-      });
-    }
-  };
-
-  document.addEventListener('keydown', handleKeyDown);
-  document.addEventListener('keyup', handleKeyUp);
-
-  return () => {
-    // クリーンアップ関数でイベントリスナーを削除（アンマウント時）
-    document.removeEventListener('keydown', handleKeyDown);
-    document.removeEventListener('keyup', handleKeyUp);
-  };
-}, [pressedKeys]); // pressedKeysが変わるたびに再登録される
-
-  // pressedKeys の変更を監視して文字を判定
-  useEffect(() => {
-    const currentDots = getCurrentDots(pressedKeys); // 押されている点を常に取得
-
-    // 1. 対応する点字データ（ひらがな、点字文字、点の配列）を検索
-    const characterData = getBrailleData(pressedKeys);
-
-    if (characterData !== null) {
-      // 2. マッピングが見つかった場合
-      onConfirm(characterData);
-    } else {
-      // 3. マッピングが見つからなかった場合:
-      
-      let characterText = '';
-      let brailleText = '';
-      
-      if (currentDots.length > 0) {
-        // キーが押されている場合のみ処理
-        const hexCode = dotsToHex(currentDots);
-        
-        // 以下の関数は以前の会話で提供されたユーティリティ関数です
-        // hexToBraille は brailleConverter.ts または別の utils ファイルにあるはずです
-        // 必要に応じてインポートを確認してください
-        //
-        // 押されている点に対応する点字文字を生成
-        brailleText = hexToBraille(hexCode); 
-        
-        // 文字を「不明」に設定
-        characterText = '不明';
-      }
-      
-      // 墨字は「不明」か空、点字は該当する点字か空、点の配列は現在押されているものを渡す
-      onConfirm({ 
-        character: characterText, 
-        braille: brailleText, 
-        dots: currentDots 
-      });
-    }
-  }, [pressedKeys, onConfirm]);
+const BrailleInput: FC<BrailleInputProps> = ({ pressedKeys }) => {
 
   return (
     <div className="braille-input-container">
