@@ -12,6 +12,7 @@ import { useKeyboardListener } from './useKeyboardListener';
 import { useBrailleInputTiming } from './useBrailleInputTiming';
 import { useBrailleModeManager } from './useBrailleModeManager';
 import { useBrailleOutputProcessor } from './useBrailleOutputProcessor';
+import { getCurrentDots, dakuonFuKey, handakuonFuKey } from '../utils/brailleConverter';
 import { dotsToHex } from '../utils/dotsToHex';
 import { hexToBraille } from '../utils/hexToBraille';
 import { getBrailleData } from '../utils/brailleConverter'; // 通常の点字データを取得
@@ -106,8 +107,25 @@ export function useBrailleLogic() {
             
             onDisplayUpdate(displayData);
             setPendingData(displayData);
-          }
+          } 
           // (lキーなどの半濁音符ロジックもここに追加)
+          else if (keys[0] === handakuonFuKey) { // 'l' キー単独
+            const handakuonBraille = hexToBraille(brailleCodes.handakuonFu); // 濁音符の点字
+            
+            // 1. モードをDakuonに更新（Context経由）
+            setCurrentMode('Handakuon');
+            
+            // 2. 表示データ（pendingData）を「濁音符」として更新（キーを離す前の表示）
+            const displayData: BrailleData = { 
+                character: '半濁音符', 
+                braille: handakuonBraille, 
+                dots: currentDots 
+            };
+            
+            onDisplayUpdate(displayData);
+            setPendingData(displayData);
+          }
+
           return; // モードキー単独の場合はこれ以降の通常点字判定は行わない
       } else {
           // 2. 通常の点字入力判定 
