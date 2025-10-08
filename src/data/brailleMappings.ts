@@ -15,19 +15,8 @@ import { hexToBraille } from '../utils/hexToBraille';
 import { hiraganaTable, hiraganaKigouTable, numberTable, alphabetTable } from './table';
 
 // ----------------------------------------------------------------------
-// 前置符のキーとモードのマッピングの定義
+// 1つの点字で表現できる基本となるキー（ひらがな、ひらがな用の記号）のマッピングの定義
 // ----------------------------------------------------------------------
-// export const brailleMappings: BrailleMapping[] = [
-//   { character: 'あ', dots: [1] },
-//   { character: 'い', dots: [1, 2] },
-//   { character: 'う', dots: [1, 4] },
-//   { character: 'え', dots: [1, 2, 4] },
-//   { character: 'お', dots: [2, 4] },
-//   { character: 'か', dots: [1, 6] },
-//   // 拗音、数符
-//   { character: 'きゃ', combo: [brailleCodes.youon_fu, [1, 4]] },
-//   { character: '1', combo: [brailleCodes.su_fu, [1]] },
-// ];
 
 // スプレッド構文を使って二つのテーブルを結合する
 // キーが重複した場合は後者が優先される
