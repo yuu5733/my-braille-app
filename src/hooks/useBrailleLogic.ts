@@ -11,7 +11,6 @@ import type { BrailleData, InputMode } from '../data/types';
 import { useBrailleContext } from '../contexts/BrailleContext';
 import { useKeyboardListener } from './useKeyboardListener';
 import { useBrailleInputTiming } from './useBrailleInputTiming';
-// import { useBrailleModeManager } from './useBrailleModeManager';
 import { useBrailleOutputProcessor } from './useBrailleOutputProcessor';
 // --- utility関数
 import { isBrailleCodeMatch, getCurrentDots } from '../utils/brailleConverter'; 
