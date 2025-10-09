@@ -23,8 +23,6 @@ import { hiraganaTable, hiraganaKigouTable, numberTable, alphabetTable } from '.
 const combinedTable = {
   ...hiraganaTable,
   ...hiraganaKigouTable,
-  // ...numberTable,
-  // ...alphabetTable,
 };
 
 // hiraganaTableをもとにbrailleMappingsを生成
