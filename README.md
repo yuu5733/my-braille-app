@@ -98,65 +98,44 @@
 
 > 注釈: このフローチャートは、濁音モード（Dakuon）を例とした、キー押下から文字確定までの基本的な流れを示します。拗音、半濁音などのモードも同様のロジックで動作します。
 
-フロチャートは未修正
+フロチャート
 ```mermaid
 flowchart TD
-    start[useEffect開始 / pressedKeys変更] --> isReleased{キーは全て<br>離されたか？};
-        isReleased -- Yes --> checkPending{pendingDataは<br>存在するか？};
-        isReleased -- No --> setTimer[100msタイマー設定];
+    start["キーボードイベント発生"] --> listen{"useKeyboardListener"};
+    listen --> pressedKeys("pressedKeys: Set<string>");
 
-    subgraph A. キー解放時の確定ロジック
-        checkPending -- No --> endRelease[Stateクリア / 終了];
-        checkPending -- Yes --> checkDakuonMaintain{Dakuonモード<br>かつ<br>濁音符単独か？};
+    subgraph "Timing & Display（useBrailleInputTiming & useBrailleLogic）"
+        pressedKeys --> debounce{"100msデバウンス"};
+        debounce -- 100ms経過後 --> stabilizedKeys("stabilizedKeys: Set<string>");
+
+        stabilizedKeys --> isModeKey{"安定入力は<br>モード符単独か？"};
+        
+        isModeKey -- Yes --> setModeDisplay["setCurrentModeでモード変更<br>pendingDataにモード符をセット"];
+        isModeKey -- No --> isKana{"有効な点字か？"};
+        
+        isKana -- Yes --> setKanaDisplay["pendingDataに清音をセット"];
+        isKana -- No --> setUnknown["pendingDataに「不明」をセット"];
     end
 
-        subgraph A-1. 濁音モード維持 kキーを押して離しただけ
-            checkDakuonMaintain -- Yes --> maintainDakuon[画面クリア / pendingDataクリア<br>モード維持（return）];
-            maintainDakuon --> endRelease;
-        end
+    subgraph "Output Processing（useBrailleOutputProcessor）"
+        pressedKeys --> isKeysReleased{"キーは全て<br>離されたか？"};
+        
+        isKeysReleased -- Yes --> processOutput["processOutput関数実行"];
+        
+        processOutput --> checkMaintain{"モード符単独の<br>キー解放か？"};
+        
+        checkMaintain -- Yes --> finish("モード維持");
+        
+        checkMaintain -- No --> isWaitingMode{"Dakuon / Youon<br>などの待機モードか？"};
+        
+        isWaitingMode -- Yes --> convert["getConvertedCharacterで変換"];
+        convert --> outputChar["onOutputで確定文字を出力"];
+        outputChar --> resetMode["setCurrentMode('Kana')"];
 
-        subgraph A-2. 濁音/清音確定 濁音モードから抜ける
-            checkDakuonMaintain -- No --> checkCurrentMode{現在のモードは<br>Dakuonか？};
-            checkCurrentMode -- Yes --> processDakuon{濁音化を試行（dakuonMap参照）};
-            processDakuon -->|成功| outputDakuon[濁音文字を出力];
-            processDakuon -->|失敗| outputKanaDakuon[清音文字を出力];
-            outputDakuon --> resetModeA[onModeChange（'Kana'）<br>setCurrentMode（'Kana'）];
-            outputKanaDakuon --> resetModeA;
-            resetModeA --> endRelease;
-        end
-
-        subgraph A-3/A-4. Kanaモードでの確定
-            checkCurrentMode -- No --> checkDakuonFu{確定文字は<br>濁音符か？};
-            checkDakuonFu -- Yes --> toDakuonMode[onModeChange（'Dakuon'）<br>setCurrentMode（'Dakuon'）];
-            toDakuonMode --> endRelease;
-
-            checkDakuonFu -- No --> checkKana{確定文字は<br>不明でないか？};
-            checkKana -- Yes --> outputKana[清音文字を出力];
-            checkKana -- No --> endRelease;
-            outputKana --> endRelease;
-        end
-
-    subgraph B. キー押下時のデバウンスロジック
-        setTimer --> cleanup(以前のタイマーをキャンセル);
-        setTimer --> onTimeout[100ms後<br>タイマー発火];
-
-        onTimeout --> checkDakuonKey{kキー単独押下か？};
+        isWaitingMode -- No --> isModeFu{"確定文字は<br>モード符か？"};
+        
+        isModeFu -- Yes --> setWaitingMode["setCurrentModeで待機モードへ"];
+        
+        isModeFu -- No --> outputKana["onOutputで清音を出力"];
     end
-
-        subgraph B-1. 濁音モードへ移行
-            checkDakuonKey -- Yes --> enterDakuonMode[setCurrentMode（'Dakuon'）<br>onModeChange（'Dakuon'）<br>pendingDataに濁音符をセット];
-            enterDakuonMode --> timerEnd(タイマー処理終了);
-        end
-
-        subgraph B-2. 通常の点字入力
-            checkDakuonKey -- No --> getBraille{getBrailleDataで<br>点字データを検索};
-            getBraille --> isFound{有効な点字<br>データが見つかったか？};
-            isFound -- Yes --> updateDisplay[pendingData/Displayを更新];
-            isFound -- No --> updateUnknown[pendingData/Displayを<br>「不明」で更新];
-        end
-
-  updateDisplay --> timerEnd;
-  updateUnknown --> timerEnd;
-
-  timerEnd --> fin[useEffect終了];
 ```
